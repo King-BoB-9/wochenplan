@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wochenplan</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #1f2e28; }
+  .wp-app {
+    --bg: #1f2e28; --bg-soft: #26392f; --paper: #f3ecd9; --paper-soft: #ece2c8;
+    --ink: #241f16; --ink-soft: #6b6350; --yolk: #e7b23d; --rust: #b14b32; --sage: #7e9673;
+    --line: rgba(243,236,217,0.16); --line-paper: rgba(36,31,22,0.12);
+    background: var(--bg); color: var(--paper); min-height: 100vh;
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px; line-height: 1.45; padding-bottom: 48px;
+  }
+  .wp-app * { box-sizing: border-box; }
+  .wp-serif { font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; }
+  .wp-header { padding: 28px 20px 18px; border-bottom: 1px solid var(--line); }
+  .wp-header h1 { font-size: 28px; margin: 0 0 4px; font-weight: 600; letter-spacing: 0.2px; }
+  .wp-header p { margin: 0; color: rgba(243,236,217,0.6); font-size: 13.5px; }
+  .wp-persons { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+  .wp-persons-label { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: rgba(243,236,217,0.75); }
+  .wp-stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .wp-stepper button { background: transparent; border: none; color: var(--paper); width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .wp-stepper button:hover { background: var(--bg-soft); }
+  .wp-stepper span { width: 32px; text-align: center; font-variant-numeric: tabular-nums; }
+
+  .wp-tabs { display: flex; gap: 22px; padding: 0 20px; margin-top: 18px; border-bottom: 1px solid var(--line); }
+  .wp-tab { background: none; border: none; color: rgba(243,236,217,0.55); font-size: 14.5px; padding: 10px 0 12px; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+  .wp-tab.active { color: var(--paper); border-bottom-color: var(--yolk); }
+
+  .wp-section { padding: 20px; }
+
+  .wp-weekswitch { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .wp-weekpill { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex: 1; }
+  .wp-weekpill button { flex: 1; background: transparent; border: none; color: rgba(243,236,217,0.6); font-size: 13.5px; padding: 9px 0; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .wp-weekpill button.active { background: var(--paper); color: var(--ink); font-weight: 600; }
+
+  .wp-carry-banner { background: var(--bg-soft); border: 1px solid rgba(231,178,61,0.35); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .wp-carry-text { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--yolk); }
+  .wp-carry-btn { background: var(--yolk); color: var(--ink); border: none; border-radius: 7px; padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: inherit; }
+
+  .wp-day { background: var(--paper); color: var(--ink); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .wp-day-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; cursor: pointer; }
+  .wp-day-name { font-size: 12.5px; color: var(--ink-soft); width: 84px; font-style: italic; }
+  .wp-day-main { flex: 1; min-width: 0; }
+  .wp-day-recipe { font-weight: 600; font-size: 15px; }
+  .wp-day-empty { color: var(--ink-soft); font-size: 14px; }
+  .wp-day-meta { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .wp-day-chevron { transition: transform 0.15s ease; color: var(--ink-soft); flex-shrink: 0; margin-left: 8px; display: flex; }
+  .wp-day-chevron.open { transform: rotate(180deg); }
+
+  .wp-day-panel { border-top: 1px solid var(--line-paper); padding: 12px 16px 16px; }
+  .wp-search-box { display: flex; align-items: center; gap: 8px; background: var(--paper-soft); border-radius: 7px; padding: 8px 10px; margin-bottom: 10px; }
+  .wp-search-box input { border: none; background: transparent; outline: none; flex: 1; font-size: 14px; color: var(--ink); font-family: inherit; }
+  .wp-day-results { max-height: 220px; overflow-y: auto; }
+  .wp-day-result { display: block; width: 100%; text-align: left; background: none; border: none; padding: 8px 4px; font-size: 14px; color: var(--ink); cursor: pointer; border-radius: 6px; font-family: inherit; }
+  .wp-day-result:hover { background: var(--paper-soft); }
+  .wp-day-result-sub { color: var(--ink-soft); font-size: 12px; }
+  .wp-day-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+  .wp-btn-ghost, .wp-btn-primary { border-radius: 7px; padding: 8px 14px; font-size: 13.5px; cursor: pointer; border: none; font-family: inherit; }
+  .wp-btn-ghost { background: transparent; border: 1px solid var(--line-paper); color: var(--ink); }
+  .wp-btn-primary { background: var(--ink); color: var(--paper); display: inline-flex; align-items: center; gap: 6px; }
+  .wp-btn-primary:disabled { opacity: 0.4; cursor: default; }
+  .wp-text-btn { background: none; border: none; color: var(--sage); font-size: 13.5px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; padding: 4px 0; font-family: inherit; }
+  .wp-text-btn.wp-danger { color: var(--rust); }
+  .wp-clear-btn { background: none; border: none; color: var(--rust); font-size: 13px; cursor: pointer; font-family: inherit; }
+
+  .wp-sugg { background: var(--bg-soft); border-radius: 10px; padding: 14px 16px; margin-top: 4px; }
+  .wp-sugg-head { display: flex; align-items: center; gap: 7px; color: var(--yolk); font-size: 13.5px; margin-bottom: 10px; }
+  .wp-sugg-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+  .wp-sugg-item:first-child { border-top: none; }
+  .wp-sugg-name { font-size: 14px; }
+  .wp-sugg-sub { font-size: 11.5px; color: rgba(243,236,217,0.5); }
+  .wp-sugg-select { background: var(--bg); color: var(--paper); border: 1px solid var(--line); border-radius: 6px; font-size: 12.5px; padding: 4px 6px; font-family: inherit; }
+
+  .wp-box-search { display: flex; align-items: center; gap: 8px; background: var(--bg-soft); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+  .wp-box-search input { border: none; background: transparent; outline: none; flex: 1; color: var(--paper); font-size: 14px; font-family: inherit; }
+  .wp-box-add { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+  .wp-box-grid { display: flex; flex-direction: column; gap: 8px; }
+  .wp-box-card { background: var(--paper); color: var(--ink); border-radius: 9px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+  .wp-box-card-name { font-weight: 600; font-size: 14.5px; }
+  .wp-box-card-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .wp-box-card-tags { font-size: 11.5px; color: var(--sage); margin-top: 2px; }
+  .wp-box-card-icons { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); flex-shrink: 0; }
+
+  .wp-list-summary { display: flex; align-items: center; gap: 8px; color: rgba(243,236,217,0.65); font-size: 13.5px; margin-bottom: 16px; }
+  .wp-cat { margin-bottom: 18px; }
+  .wp-cat-title { font-size: 12.5px; font-style: italic; color: var(--yolk); margin-bottom: 8px; }
+  .wp-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); cursor: pointer; }
+  .wp-item:first-child { border-top: none; }
+  .wp-checkbox { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid rgba(243,236,217,0.4); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .wp-checkbox.on { background: var(--sage); border-color: var(--sage); }
+  .wp-item-name { flex: 1; font-size: 14.5px; }
+  .wp-item.done .wp-item-name { text-decoration: line-through; opacity: 0.45; }
+  .wp-item-amount { font-size: 13.5px; color: rgba(243,236,217,0.7); font-variant-numeric: tabular-nums; }
+  .wp-missing { background: rgba(177,75,50,0.18); border: 1px solid rgba(177,75,50,0.4); border-radius: 8px; padding: 12px 14px; margin-top: 6px; font-size: 13px; color: var(--paper); }
+  .wp-missing strong { color: var(--yolk); }
+
+  .wp-empty { text-align: center; color: rgba(243,236,217,0.45); font-size: 14px; padding: 30px 20px; }
+  .wp-icon-btn { background: none; border: none; color: inherit; cursor: pointer; padding: 4px; display: flex; }
+
+  .wp-modal-backdrop { position: fixed; inset: 0; background: rgba(15,20,17,0.72); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .wp-modal { background: var(--paper); color: var(--ink); width: 100%; max-width: 520px; max-height: 88vh; border-radius: 16px 16px 0 0; display: flex; flex-direction: column; }
+  .wp-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line-paper); }
+  .wp-modal-head h3 { margin: 0; font-size: 17px; }
+  .wp-modal-body { padding: 16px 18px; overflow-y: auto; }
+  .wp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; font-size: 12.5px; color: var(--ink-soft); flex: 1; }
+  .wp-field span em { font-style: italic; opacity: 0.75; }
+  .wp-field input, .wp-field select { border: 1px solid var(--line-paper); border-radius: 7px; padding: 9px 10px; font-size: 14px; color: var(--ink); background: white; font-family: inherit; width: 100%; }
+  .wp-field-row { display: flex; gap: 10px; }
+  .wp-field-narrow { max-width: 130px; }
+  .wp-ing-head { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); margin: 6px 0 8px; }
+  .wp-muted-note { font-size: 12.5px; color: var(--ink-soft); font-style: italic; margin: 0 0 10px; }
+  .wp-ing-row { display: flex; gap: 6px; margin-bottom: 7px; align-items: center; }
+  .wp-ing-name { flex: 1.6; min-width: 0; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 8px; font-size: 13px; font-family: inherit; }
+  .wp-ing-amount { width: 58px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 6px; font-size: 13px; font-family: inherit; }
+  .wp-ing-unit { width: 78px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 4px; font-size: 12px; font-family: inherit; background: white; }
+  .wp-ing-cat { flex: 1.3; min-width: 0; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 4px; font-size: 12px; font-family: inherit; background: white; }
+  .wp-modal-foot { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--line-paper); }
+  .wp-modal-foot-actions { display: flex; gap: 8px; }
+
+  .wp-footer-note { text-align: center; font-size: 11.5px; color: rgba(243,236,217,0.35); font-style: italic; padding: 24px 20px 4px; }
+</style>
+</head>
+<body>
+<div id="app" class="wp-app"></div>
+
+<script type="module">
+'use strict';
+
+// ============================================================
+// FIREBASE-EINRICHTUNG — hier eure eigenen Werte eintragen
+// ============================================================
+// 1. Firebase-Projekt anlegen: https://console.firebase.google.com
+// 2. Firestore Database + Anonyme Anmeldung aktivieren (siehe Anleitung)
+// 3. Das firebaseConfig-Objekt aus den Projekteinstellungen hier einfügen:
+const firebaseConfig = {
+  apiKey: "AIzaSyDvOU-sjd34uJuNGJYyJYqofPRlHecSpnY",
+  authDomain: "wochen-essenplanung.firebaseapp.com",
+  projectId: "wochen-essenplanung",
+  storageBucket: "wochen-essenplanung.firebasestorage.app",
+  messagingSenderId: "661727069767",
+  appId: "1:661727069767:web:5119cbc1b5b7301baf9362"
+};
+// 4. Einen frei erfundenen, einmaligen Code für euren Haushalt vergeben
+//    (verhindert, dass die Daten mit einem anderen Haushalt kollidieren):
+const HOUSEHOLD_ID = "wochen-essenplanung-familie";
+// ============================================================
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
+
+var DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+var UNITS = ['Stück', 'g', 'kg', 'ml', 'l', 'EL', 'TL', 'Bund', 'Dose', 'Packung', 'Prise', 'Glas', 'Zehe(n)', 'Scheibe(n)', 'Würfel'];
+var CATEGORIES = ['Obst & Gemüse', 'Fleisch & Fisch', 'Milchprodukte', 'Trockenware & Konserven', 'Tiefkühl', 'Backwaren', 'Sonstiges'];
+var STORAGE_KEY = 'wochenplan-familie-v1';
+
+var ICONS = {
+  chevron: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>',
+  search: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+  plus: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+  x: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+  trash: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>',
+  check: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"></path></svg>',
+  users: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+  minus: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>',
+  calendar: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+  arrow: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
+  external: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>',
+  pencil: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
+  cart: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>'
+};
+
+function uid(prefix){ return (prefix||'id') + '-' + Math.random().toString(36).slice(2, 9); }
+function esc(str){
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// [name, addedBy, tags[], ingredients: [name, menge, einheit, kategorie][], url]
+var recipesData = [
+  ['Bauerntopf', 'Lukas', ['kartoffel', 'hackfleisch'], [
+    ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'], ['Kartoffeln', 800, 'g', 'Obst & Gemüse'],
+    ['Zwiebeln', 2, 'Stück', 'Obst & Gemüse'], ['Karotten', 3, 'Stück', 'Obst & Gemüse'],
+    ['Lauch', 1, 'Stück', 'Obst & Gemüse'], ['Passierte Tomaten', 400, 'g', 'Trockenware & Konserven'],
+    ['Gemüsebrühe', 500, 'ml', 'Trockenware & Konserven']
+  ], null],
+  ['Bratnudeln', 'Luise', ['nudeln', 'gemüse'], [
+    ['Eiernudeln', 400, 'g', 'Trockenware & Konserven'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Karotten', 2, 'Stück', 'Obst & Gemüse'], ['Frühlingszwiebeln', 1, 'Bund', 'Obst & Gemüse'],
+    ['Eier', 2, 'Stück', 'Milchprodukte'], ['Sojasoße', 4, 'EL', 'Sonstiges']
+  ], null],
+  ['Brokkoli Auflauf', 'Luise', ['brokkoli', 'käse'], [
+    ['Brokkoli', 800, 'g', 'Obst & Gemüse'], ['Kartoffeln', 500, 'g', 'Obst & Gemüse'],
+    ['Schmand', 200, 'g', 'Milchprodukte'], ['Reibekäse', 200, 'g', 'Milchprodukte'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Eier', 3, 'Stück', 'Milchprodukte']
+  ], null],
+  ['Bruschetta', 'Lukas', ['tomate', 'brot'], [
+    ['Baguette', 1, 'Stück', 'Backwaren'], ['Tomaten', 6, 'Stück', 'Obst & Gemüse'],
+    ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse'], ['Basilikum', 1, 'Bund', 'Obst & Gemüse'],
+    ['Olivenöl', 4, 'EL', 'Sonstiges'], ['Balsamico', 2, 'EL', 'Sonstiges']
+  ], null],
+  ['Buletten', 'Lukas', ['hackfleisch'], [
+    ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Ei', 1, 'Stück', 'Milchprodukte'], ['Paniermehl', 80, 'g', 'Trockenware & Konserven'],
+    ['Senf', 1, 'EL', 'Sonstiges']
+  ], 'https://emmikochteinfach.de/klassische-frikadellen-rezept/'],
+  ['Burger', 'Luise', ['hackfleisch', 'brötchen'], [
+    ['Rinderhackfleisch', 600, 'g', 'Fleisch & Fisch'], ['Burger-Brötchen', 4, 'Stück', 'Backwaren'],
+    ['Salatblätter', 4, 'Stück', 'Obst & Gemüse'], ['Tomaten', 2, 'Stück', 'Obst & Gemüse'],
+    ['Zwiebeln', 1, 'Stück', 'Obst & Gemüse'], ['Cheddar-Scheiben', 4, 'Stück', 'Milchprodukte'],
+    ['Essiggurken', 1, 'Glas', 'Trockenware & Konserven']
+  ], null],
+  ['Chilli con Carne', 'Lukas', ['hackfleisch', 'bohnen', 'tomate'], [
+    ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'], ['Kidneybohnen', 2, 'Dose', 'Trockenware & Konserven'],
+    ['Mais', 1, 'Dose', 'Trockenware & Konserven'], ['Passierte Tomaten', 800, 'g', 'Trockenware & Konserven'],
+    ['Zwiebeln', 2, 'Stück', 'Obst & Gemüse'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse']
+  ], null],
+  ['Dinonuggets mit Kartoffelbrei und brauner Soße', 'Luise', ['kartoffel', 'nuggets'], [
+    ['Dino-Nuggets', 500, 'g', 'Tiefkühl'], ['Kartoffeln', 1, 'kg', 'Obst & Gemüse'],
+    ['Milch', 150, 'ml', 'Milchprodukte'], ['Butter', 50, 'g', 'Milchprodukte'],
+    ['Bratensoße (Glas)', 1, 'Glas', 'Trockenware & Konserven']
+  ], null],
+  ['Eierkuchen', 'Lukas', ['ei', 'mehl', 'milch'], [
+    ['Mehl', 250, 'g', 'Trockenware & Konserven'], ['Eier', 4, 'Stück', 'Milchprodukte'],
+    ['Milch', 500, 'ml', 'Milchprodukte'], ['Butter', 30, 'g', 'Milchprodukte']
+  ], null],
+  ['Fischstäbchen mit Kartoffelbrei und Spinat', 'Luise', ['fisch', 'kartoffel', 'spinat'], [
+    ['Fischstäbchen', 16, 'Stück', 'Tiefkühl'], ['Kartoffeln', 1, 'kg', 'Obst & Gemüse'],
+    ['Blattspinat, TK', 500, 'g', 'Tiefkühl'], ['Milch', 150, 'ml', 'Milchprodukte'], ['Butter', 50, 'g', 'Milchprodukte']
+  ], null],
+  ['Gebackener Feta mit Tomaten', 'Luise', ['feta', 'tomate'], [
+    ['Feta', 400, 'g', 'Milchprodukte'], ['Cocktailtomaten', 500, 'g', 'Obst & Gemüse'],
+    ['Olivenöl', 3, 'EL', 'Sonstiges'], ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse'], ['Oregano getrocknet', 1, 'TL', 'Sonstiges']
+  ], null],
+  ['Gefüllte Zucchini', 'Luise', ['zucchini', 'hackfleisch'], [
+    ['Zucchini', 4, 'Stück', 'Obst & Gemüse'], ['Hackfleisch gemischt', 400, 'g', 'Fleisch & Fisch'],
+    ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'], ['Reibekäse', 150, 'g', 'Milchprodukte'],
+    ['Passierte Tomaten', 200, 'g', 'Trockenware & Konserven']
+  ], null],
+  ['Gefüllter Kürbis', 'Luise', ['kürbis'], [
+    ['Hokkaido-Kürbis', 1, 'Stück', 'Obst & Gemüse'], ['Hackfleisch gemischt', 400, 'g', 'Fleisch & Fisch'],
+    ['Reis', 100, 'g', 'Trockenware & Konserven'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Reibekäse', 150, 'g', 'Milchprodukte']
+  ], null],
+  ['Geschnetzeltes', 'Luise', ['fleisch', 'sahne'], [
+    ['Putenbrust oder Schweinefilet', 600, 'g', 'Fleisch & Fisch'], ['Champignons', 250, 'g', 'Obst & Gemüse'],
+    ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'], ['Sahne', 200, 'ml', 'Milchprodukte'],
+    ['Gemüsebrühe', 200, 'ml', 'Trockenware & Konserven']
+  ], null],
+  ['Gnocchi mit Tomate-Mozzarella-Soße', 'Luise', ['gnocchi', 'tomate', 'mozzarella'], [
+    ['Gnocchi', 1, 'kg', 'Trockenware & Konserven'], ['Passierte Tomaten', 500, 'g', 'Trockenware & Konserven'],
+    ['Mozzarella', 2, 'Stück', 'Milchprodukte'], ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse'], ['Basilikum', 1, 'Bund', 'Obst & Gemüse']
+  ], null],
+  ['Grießbrei', 'Luise', ['grieß', 'milch'], [
+    ['Milch', 1, 'l', 'Milchprodukte'], ['Hartweizengrieß', 100, 'g', 'Trockenware & Konserven'],
+    ['Zucker', 40, 'g', 'Trockenware & Konserven'], ['Vanillezucker', 1, 'Packung', 'Trockenware & Konserven']
+  ], null],
+  ['Grillen', 'Luise', ['fleisch', 'gemüse'], [
+    ['Bratwürste', 8, 'Stück', 'Fleisch & Fisch'], ['Steaks', 4, 'Stück', 'Fleisch & Fisch'],
+    ['Maiskolben', 4, 'Stück', 'Obst & Gemüse'], ['Grillgemüse gemischt', 500, 'g', 'Obst & Gemüse'],
+    ['Brötchen', 8, 'Stück', 'Backwaren']
+  ], null],
+  ['Grillgemüse mit Garnelen', 'Luise', ['gemüse', 'garnelen'], [
+    ['Garnelen', 500, 'g', 'Fleisch & Fisch'], ['Zucchini', 2, 'Stück', 'Obst & Gemüse'],
+    ['Paprika', 3, 'Stück', 'Obst & Gemüse'], ['Aubergine', 1, 'Stück', 'Obst & Gemüse'],
+    ['Olivenöl', 3, 'EL', 'Sonstiges'], ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse']
+  ], null],
+  ['Hackbraten', 'Lukas', ['hackfleisch'], [
+    ['Hackfleisch gemischt', 800, 'g', 'Fleisch & Fisch'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Eier', 2, 'Stück', 'Milchprodukte'], ['Paniermehl', 60, 'g', 'Trockenware & Konserven'],
+    ['Speckscheiben', 100, 'g', 'Fleisch & Fisch'], ['Tomatenmark', 2, 'EL', 'Trockenware & Konserven']
+  ], null],
+  ['Jägerklopse mit Reis', 'Luise', ['hackfleisch', 'reis'], [
+    ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'], ['Reis', 300, 'g', 'Trockenware & Konserven'],
+    ['Champignons', 300, 'g', 'Obst & Gemüse'], ['Sahne', 200, 'ml', 'Milchprodukte'],
+    ['Gemüsebrühe', 400, 'ml', 'Trockenware & Konserven'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse']
+  ], null],
+  ['Jägerschnitzel', 'Luise', ['schnitzel', 'pilze'], [
+    ['Schweineschnitzel', 4, 'Stück', 'Fleisch & Fisch'], ['Champignons', 300, 'g', 'Obst & Gemüse'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Gemüsebrühe', 200, 'ml', 'Trockenware & Konserven'], ['Paniermehl', 100, 'g', 'Trockenware & Konserven']
+  ], null],
+  ['Kalter Hund', 'Lukas', ['kekse', 'kakao'], [
+    ['Butterkekse', 300, 'g', 'Backwaren'], ['Kokosfett', 250, 'g', 'Trockenware & Konserven'],
+    ['Kakaopulver', 75, 'g', 'Trockenware & Konserven'], ['Puderzucker', 150, 'g', 'Trockenware & Konserven'],
+    ['Vanillezucker', 1, 'Packung', 'Trockenware & Konserven']
+  ], 'https://emmikochteinfach.de/kalter-hund/'],
+  ['Kartoffel-Lachs-Auflauf', 'Luise', ['kartoffel', 'lachs'], [
+    ['Kartoffeln', 1, 'kg', 'Obst & Gemüse'], ['Lachsfilet', 500, 'g', 'Fleisch & Fisch'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Reibekäse', 150, 'g', 'Milchprodukte'], ['Dill', 1, 'Bund', 'Obst & Gemüse']
+  ], null],
+  ['Kartoffelauflauf', 'Luise', ['kartoffel'], [
+    ['Kartoffeln', 1, 'kg', 'Obst & Gemüse'], ['Sahne', 200, 'ml', 'Milchprodukte'],
+    ['Reibekäse', 200, 'g', 'Milchprodukte'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'], ['Milch', 150, 'ml', 'Milchprodukte']
+  ], null],
+  ['Kartoffeln und Quark', 'Luise', ['kartoffel', 'quark'], [
+    ['Kartoffeln', 1.2, 'kg', 'Obst & Gemüse'], ['Speisequark', 500, 'g', 'Milchprodukte'],
+    ['Schnittlauch', 1, 'Bund', 'Obst & Gemüse'], ['Leinöl', 4, 'EL', 'Sonstiges']
+  ], null],
+  ['Kartoffelpüree', 'Lukas', ['kartoffel'], [
+    ['Kartoffeln', 1.2, 'kg', 'Obst & Gemüse'], ['Milch', 200, 'ml', 'Milchprodukte'], ['Butter', 60, 'g', 'Milchprodukte']
+  ], null],
+  ['Kichererbsen mit Gemüse', 'Luise', ['kichererbsen', 'gemüse'], [
+    ['Kichererbsen', 2, 'Dose', 'Trockenware & Konserven'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Zucchini', 1, 'Stück', 'Obst & Gemüse'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Passierte Tomaten', 400, 'g', 'Trockenware & Konserven'], ['Kreuzkümmel', 1, 'TL', 'Sonstiges']
+  ], null],
+  ['Lasagne', 'Luise', ['hackfleisch', 'nudelplatten', 'tomate'], [
+    ['Lasagneplatten', 250, 'g', 'Trockenware & Konserven'], ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'],
+    ['Passierte Tomaten', 700, 'g', 'Trockenware & Konserven'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Reibekäse', 250, 'g', 'Milchprodukte'], ['Milch für Béchamel', 500, 'ml', 'Milchprodukte']
+  ], null],
+  ['Milchreis', 'Luise', ['reis', 'milch'], [
+    ['Milchreis', 200, 'g', 'Trockenware & Konserven'], ['Milch', 1, 'l', 'Milchprodukte'],
+    ['Zucker', 40, 'g', 'Trockenware & Konserven'], ['Zimt und Zucker', 30, 'g', 'Trockenware & Konserven']
+  ], null],
+  ['Nudelauflauf', 'Luise', ['nudeln'], [
+    ['Nudeln', 400, 'g', 'Trockenware & Konserven'], ['Schinkenwürfel', 200, 'g', 'Fleisch & Fisch'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Reibekäse', 200, 'g', 'Milchprodukte'], ['Eier', 2, 'Stück', 'Milchprodukte']
+  ], null],
+  ['Nudeln mit Tomatensoße und Würstchen', 'Lukas', ['nudeln', 'tomate', 'würstchen'], [
+    ['Nudeln', 400, 'g', 'Trockenware & Konserven'], ['Wiener Würstchen', 8, 'Stück', 'Fleisch & Fisch'],
+    ['Passierte Tomaten', 500, 'g', 'Trockenware & Konserven'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Reibekäse', 100, 'g', 'Milchprodukte']
+  ], null],
+  ['Ofengemüse', 'Luise', ['gemüse'], [
+    ['Kartoffeln', 500, 'g', 'Obst & Gemüse'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Zucchini', 2, 'Stück', 'Obst & Gemüse'], ['Rote Zwiebeln', 2, 'Stück', 'Obst & Gemüse'],
+    ['Olivenöl', 4, 'EL', 'Sonstiges'], ['Kräuter der Provence', 1, 'TL', 'Sonstiges']
+  ], null],
+  ['Panierter Feta', 'Luise', ['feta'], [
+    ['Feta', 400, 'g', 'Milchprodukte'], ['Mehl', 50, 'g', 'Trockenware & Konserven'],
+    ['Eier', 2, 'Stück', 'Milchprodukte'], ['Paniermehl', 100, 'g', 'Trockenware & Konserven'], ['Honig', 2, 'EL', 'Sonstiges']
+  ], null],
+  ['Parmesan Hähnchen mit getrockneten Tomaten', 'Lukas', ['hähnchen', 'tomate', 'parmesan'], [
+    ['Hähnchenbrustfilet', 4, 'Stück', 'Fleisch & Fisch'], ['Getrocknete Tomaten', 100, 'g', 'Trockenware & Konserven'],
+    ['Parmesan gerieben', 80, 'g', 'Milchprodukte'], ['Sahne', 200, 'ml', 'Milchprodukte'], ['Knoblauch', 2, 'Zehe(n)', 'Obst & Gemüse']
+  ], null],
+  ['Pilzsoße', 'Luise', ['pilze', 'sahne'], [
+    ['Champignons', 400, 'g', 'Obst & Gemüse'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Gemüsebrühe', 150, 'ml', 'Trockenware & Konserven'], ['Butter', 30, 'g', 'Milchprodukte']
+  ], null],
+  ['Pizza', 'Luise', ['teig', 'tomate', 'käse'], [
+    ['Pizzamehl Typ 00', 500, 'g', 'Trockenware & Konserven'], ['Hefe', 1, 'Würfel', 'Trockenware & Konserven'],
+    ['Passierte Tomaten', 250, 'g', 'Trockenware & Konserven'], ['Mozzarella', 2, 'Stück', 'Milchprodukte'],
+    ['Belag nach Wahl (Schinken/Salami/Gemüse)', 300, 'g', 'Fleisch & Fisch']
+  ], null],
+  ['Pizzabrötchen', 'Luise', ['teig', 'käse'], [
+    ['Toastbrot', 8, 'Scheibe(n)', 'Backwaren'], ['Tomatenmark', 4, 'EL', 'Trockenware & Konserven'],
+    ['Reibekäse', 200, 'g', 'Milchprodukte'], ['Schinkenwürfel', 100, 'g', 'Fleisch & Fisch'], ['Oregano', 1, 'TL', 'Sonstiges']
+  ], null],
+  ['Rote Grütze', 'Luise', ['beeren'], [
+    ['Beerenmischung, TK', 600, 'g', 'Tiefkühl'], ['Zucker', 100, 'g', 'Trockenware & Konserven'],
+    ['Speisestärke', 2, 'EL', 'Trockenware & Konserven'], ['Vanillezucker', 1, 'Packung', 'Trockenware & Konserven']
+  ], null],
+  ['Salat', 'Luise', ['salat', 'gemüse'], [
+    ['Gemischter Blattsalat', 2, 'Stück', 'Obst & Gemüse'], ['Gurke', 1, 'Stück', 'Obst & Gemüse'],
+    ['Tomaten', 4, 'Stück', 'Obst & Gemüse'], ['Essig', 3, 'EL', 'Sonstiges'], ['Olivenöl', 4, 'EL', 'Sonstiges']
+  ], null],
+  ['Schnitzel', 'Luise', ['schnitzel'], [
+    ['Schweineschnitzel', 4, 'Stück', 'Fleisch & Fisch'], ['Mehl', 50, 'g', 'Trockenware & Konserven'],
+    ['Eier', 2, 'Stück', 'Milchprodukte'], ['Paniermehl', 150, 'g', 'Trockenware & Konserven'], ['Zitrone', 1, 'Stück', 'Obst & Gemüse']
+  ], null],
+  ['Schokopudding', 'Luise', ['schokolade', 'milch'], [
+    ['Milch', 1, 'l', 'Milchprodukte'], ['Puddingpulver Schoko', 2, 'Packung', 'Trockenware & Konserven'],
+    ['Zucker', 40, 'g', 'Trockenware & Konserven']
+  ], null],
+  ['Spaghetti Bolognese', 'Luise', ['nudeln', 'hackfleisch', 'tomate'], [
+    ['Spaghetti', 400, 'g', 'Trockenware & Konserven'], ['Hackfleisch gemischt', 500, 'g', 'Fleisch & Fisch'],
+    ['Passierte Tomaten', 700, 'g', 'Trockenware & Konserven'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Karotte', 1, 'Stück', 'Obst & Gemüse'], ['Parmesan gerieben', 60, 'g', 'Milchprodukte']
+  ], null],
+  ['Spaghetti Carbonara', 'Luise', ['nudeln', 'speck', 'sahne'], [
+    ['Spaghetti', 400, 'g', 'Trockenware & Konserven'], ['Speckwürfel', 200, 'g', 'Fleisch & Fisch'],
+    ['Eier', 4, 'Stück', 'Milchprodukte'], ['Parmesan gerieben', 100, 'g', 'Milchprodukte']
+  ], null],
+  ['Spinat-Sahne-Soße mit Lachs', 'Luise', ['spinat', 'sahne', 'lachs'], [
+    ['Lachsfilet', 500, 'g', 'Fleisch & Fisch'], ['Blattspinat, TK', 400, 'g', 'Tiefkühl'],
+    ['Sahne', 200, 'ml', 'Milchprodukte'], ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'], ['Parmesan gerieben', 50, 'g', 'Milchprodukte']
+  ], null],
+  ['Tapas', 'Luise', ['gemischt'], [
+    ['Chorizo', 200, 'g', 'Fleisch & Fisch'], ['Oliven', 200, 'g', 'Trockenware & Konserven'],
+    ['Manchego (o. ä. Käse)', 200, 'g', 'Milchprodukte'], ['Baguette', 1, 'Stück', 'Backwaren'],
+    ['Cocktailtomaten', 250, 'g', 'Obst & Gemüse']
+  ], null],
+  ['Tomatensalat', 'Luise', ['tomate', 'salat'], [
+    ['Tomaten', 800, 'g', 'Obst & Gemüse'], ['Rote Zwiebel', 1, 'Stück', 'Obst & Gemüse'],
+    ['Basilikum', 1, 'Bund', 'Obst & Gemüse'], ['Olivenöl', 4, 'EL', 'Sonstiges'], ['Balsamico', 2, 'EL', 'Sonstiges']
+  ], null],
+  ['Überbackene Kartoffeln mit Hollandaise und Schinken', 'Lukas', ['kartoffel', 'schinken'], [
+    ['Kartoffeln', 1, 'kg', 'Obst & Gemüse'], ['Gekochter Schinken', 300, 'g', 'Fleisch & Fisch'],
+    ['Hollandaise (Glas)', 250, 'ml', 'Trockenware & Konserven'], ['Reibekäse', 150, 'g', 'Milchprodukte']
+  ], null],
+  ['Wraps', 'Luise', ['fladenbrot', 'gemüse', 'fleisch'], [
+    ['Weizen-Tortillas', 8, 'Stück', 'Backwaren'], ['Hähnchenbrustfilet', 400, 'g', 'Fleisch & Fisch'],
+    ['Eisbergsalat', 1, 'Stück', 'Obst & Gemüse'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Kräuterquark', 200, 'g', 'Milchprodukte']
+  ], null],
+  ['Würstchengulasch', 'Luise', ['würstchen', 'paprika'], [
+    ['Wiener Würstchen', 8, 'Stück', 'Fleisch & Fisch'], ['Paprika', 2, 'Stück', 'Obst & Gemüse'],
+    ['Zwiebel', 1, 'Stück', 'Obst & Gemüse'], ['Passierte Tomaten', 500, 'g', 'Trockenware & Konserven'],
+    ['Paprikapulver edelsüß', 1, 'EL', 'Sonstiges']
+  ], null]
+];
+
+function buildInitialRecipes(){
+  return recipesData.map(function(row){
+    var name = row[0], addedBy = row[1], tags = row[2], ings = row[3], url = row[4];
+    return {
+      id: uid('r'), name: name, addedBy: addedBy, tags: tags, servings: 4, url: url,
+      ingredients: ings.map(function(i){ return { id: uid('ing'), name: i[0], amount: i[1], unit: i[2], category: i[3] }; })
+    };
+  });
+}
+
+function emptyDays(){
+  var d = {};
+  DAYS.forEach(function(day){ d[day] = { recipeId: null }; });
+  return d;
+}
+function emptyPlan(){ return { persons: 4, days: emptyDays() }; }
+
+function signals(r){
+  var s = new Set();
+  (r.tags || []).forEach(function(t){ s.add(t); });
+  (r.ingredients || []).forEach(function(i){ s.add(i.name.toLowerCase()); });
+  return s;
+}
+
+function getSuggestions(recipes, days){
+  var plannedIds = Object.keys(days).map(function(d){ return days[d].recipeId; }).filter(Boolean);
+  if(!plannedIds.length) return [];
+  var planned = new Set();
+  plannedIds.forEach(function(id){
+    var r = recipes.find(function(x){ return x.id === id; });
+    if(r) signals(r).forEach(function(s){ planned.add(s); });
+  });
+  if(!planned.size) return [];
+  return recipes
+    .filter(function(r){ return plannedIds.indexOf(r.id) === -1; })
+    .map(function(r){
+      var score = 0;
+      signals(r).forEach(function(s){ if(planned.has(s)) score++; });
+      return { recipe: r, score: score };
+    })
+    .filter(function(x){ return x.score > 0; })
+    .sort(function(a,b){ return b.score - a.score; })
+    .slice(0, 6);
+}
+
+function buildShoppingList(recipes, plan){
+  var map = {};
+  var missing = [];
+  Object.keys(plan.days).forEach(function(day){
+    var info = plan.days[day];
+    if(!info.recipeId) return;
+    var r = recipes.find(function(x){ return x.id === info.recipeId; });
+    if(!r) return;
+    if(!r.ingredients.length){ missing.push(r.name); return; }
+    var factor = plan.persons / (r.servings || 4);
+    r.ingredients.forEach(function(ing){
+      var key = ing.name.toLowerCase() + '|' + ing.unit;
+      if(!map[key]) map[key] = { name: ing.name, unit: ing.unit, amount: 0, category: ing.category || 'Sonstiges' };
+      map[key].amount += (Number(ing.amount) || 0) * factor;
+    });
+  });
+  var items = Object.keys(map).map(function(k){
+    var i = map[k];
+    return { name: i.name, unit: i.unit, category: i.category, amount: Math.round(i.amount * 10) / 10 };
+  }).sort(function(a,b){ return a.name.localeCompare(b.name, 'de'); });
+  var byCategory = {};
+  items.forEach(function(i){
+    if(!byCategory[i.category]) byCategory[i.category] = [];
+    byCategory[i.category].push(i);
+  });
+  return { byCategory: byCategory, missing: Array.from(new Set(missing)) };
+}
+
+// ---- State ----
+var recipes = buildInitialRecipes(), plan = emptyPlan(), nextPlan = { days: emptyDays() };
+var ui = { tab: 'plan', weekView: 'current', openDay: null, daySearch: '', boxSearch: '', checked: {}, modal: null };
+var cloud = { ready: false, error: null, docRef: null, applyingRemote: false };
+
+function isConfigured(){
+  return firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf('HIER_') !== 0 &&
+    HOUSEHOLD_ID && HOUSEHOLD_ID.indexOf('HIER_') !== 0;
+}
+
+function initCloud(){
+  if(!isConfigured()){
+    cloud.error = 'config';
+    render();
+    return;
+  }
+  try{
+    var app = initializeApp(firebaseConfig);
+    var auth = getAuth(app);
+    var db = getFirestore(app);
+    cloud.docRef = doc(db, 'households', HOUSEHOLD_ID);
+
+    onAuthStateChanged(auth, function(user){
+      if(!user) return;
+      onSnapshot(cloud.docRef, function(snap){
+        cloud.applyingRemote = true;
+        if(snap.exists()){
+          var d = snap.data();
+          recipes = (d.recipes && d.recipes.length) ? d.recipes : buildInitialRecipes();
+          plan = d.plan || emptyPlan();
+          nextPlan = d.nextPlan || { days: emptyDays() };
+        } else {
+          recipes = buildInitialRecipes();
+          plan = emptyPlan();
+          nextPlan = { days: emptyDays() };
+          setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan }).catch(function(e){ cloud.error = e.message; });
+        }
+        cloud.ready = true;
+        cloud.applyingRemote = false;
+        render();
+      }, function(err){
+        cloud.error = err.message;
+        render();
+      });
+    });
+
+    signInAnonymously(auth).catch(function(e){ cloud.error = e.message; render(); });
+  } catch(e){
+    cloud.error = e.message;
+    render();
+  }
+}
+
+function saveState(){
+  if(cloud.applyingRemote || !cloud.docRef) return;
+  setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan }).catch(function(e){
+    cloud.error = e.message; render();
+  });
+}
+
+function assignRecipe(day, recipeId){
+  if(ui.weekView === 'next'){ nextPlan.days[day] = { recipeId: recipeId || null }; }
+  else { plan.days[day] = { recipeId: recipeId || null }; }
+  ui.openDay = null; ui.daySearch = '';
+}
+function switchWeek(){
+  plan.days = nextPlan.days;
+  nextPlan = { days: emptyDays() };
+  ui.checked = {}; ui.weekView = 'current'; ui.openDay = null;
+}
+function openAddModal(forDay, presetName){
+  ui.modal = { forDay: forDay || null, editingId: null, name: presetName || '', addedBy: '', servings: 4, tagsText: '', url: '', ingredients: [] };
+}
+function openEditModal(recipe){
+  ui.modal = {
+    forDay: null, editingId: recipe.id, name: recipe.name, addedBy: recipe.addedBy,
+    servings: recipe.servings, tagsText: recipe.tags.join(', '), url: recipe.url || '',
+    ingredients: recipe.ingredients.map(function(i){ return Object.assign({}, i); })
+  };
+}
+function saveModal(){
+  var m = ui.modal;
+  if(!m.name.trim()) return;
+  var tags = m.tagsText.split(',').map(function(t){ return t.trim().toLowerCase(); }).filter(Boolean);
+  var ingredients = m.ingredients.filter(function(i){ return i.name.trim(); }).map(function(i){
+    return { id: i.id || uid('ing'), name: i.name.trim(), amount: Number(i.amount) || 0, unit: i.unit, category: i.category };
+  });
+  var newId = m.editingId;
+  if(m.editingId){
+    var idx = recipes.findIndex(function(r){ return r.id === m.editingId; });
+    if(idx > -1){
+      recipes[idx] = Object.assign({}, recipes[idx], {
+        name: m.name.trim(), addedBy: m.addedBy.trim() || 'Familie', servings: Number(m.servings) || 4,
+        tags: tags, url: m.url.trim() || null, ingredients: ingredients
+      });
+    }
+  } else {
+    newId = uid('r');
+    recipes.push({
+      id: newId, name: m.name.trim(), addedBy: m.addedBy.trim() || 'Familie', servings: Number(m.servings) || 4,
+      tags: tags, url: m.url.trim() || null, ingredients: ingredients
+    });
+  }
+  if(m.forDay) assignRecipe(m.forDay, newId);
+  ui.modal = null;
+}
+function deleteRecipeFromModal(){
+  var id = ui.modal.editingId;
+  recipes = recipes.filter(function(r){ return r.id !== id; });
+  Object.keys(plan.days).forEach(function(d){ if(plan.days[d].recipeId === id) plan.days[d] = { recipeId: null }; });
+  Object.keys(nextPlan.days).forEach(function(d){ if(nextPlan.days[d].recipeId === id) nextPlan.days[d] = { recipeId: null }; });
+  ui.modal = null;
+}
+
+// ---- Render ----
+function renderHeader(){
+  return '' +
+    '<div class="wp-header">' +
+      '<h1 class="wp-serif">Wochenplan</h1>' +
+      '<p>Rezeptbox von Lukas &amp; Luise · ' + recipes.length + ' Gerichte, alle mit Beispiel-Zutaten befüllt</p>' +
+      '<div class="wp-persons">' +
+        '<span class="wp-persons-label">' + ICONS.users + ' Personen diese Woche</span>' +
+        '<div class="wp-stepper">' +
+          '<button data-action="persons-minus">' + ICONS.minus + '</button>' +
+          '<span>' + plan.persons + '</span>' +
+          '<button data-action="persons-plus">' + ICONS.plus + '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+}
+function renderTabs(){
+  return '' +
+    '<div class="wp-tabs">' +
+      '<button class="wp-tab ' + (ui.tab==='plan'?'active':'') + '" data-action="tab" data-tab="plan">Wochenplan</button>' +
+      '<button class="wp-tab ' + (ui.tab==='box'?'active':'') + '" data-action="tab" data-tab="box">Rezeptbox</button>' +
+      '<button class="wp-tab ' + (ui.tab==='list'?'active':'') + '" data-action="tab" data-tab="list">Einkaufsliste</button>' +
+    '</div>';
+}
+function renderDayPanel(day, days){
+  var q = ui.daySearch.trim().toLowerCase();
+  var results = (q ? recipes.filter(function(r){ return r.name.toLowerCase().indexOf(q) > -1; }) : recipes).slice(0, 8);
+  var hasRecipe = !!days[day].recipeId;
+  var html = '<div class="wp-day-panel">' +
+    '<div class="wp-search-box">' + ICONS.search + '<input id="daySearchInput" placeholder="Rezept suchen …" value="' + esc(ui.daySearch) + '"></div>' +
+    '<div class="wp-day-results">';
+  if(results.length){
+    results.forEach(function(r){
+      html += '<button class="wp-day-result" data-action="assign-day" data-day="' + esc(day) + '" data-recipe="' + r.id + '">' + esc(r.name) + ' <span class="wp-day-result-sub">— ' + esc(r.addedBy) + '</span></button>';
+    });
+  } else {
+    html += '<p class="wp-muted-note">Kein Rezept gefunden.</p>';
+  }
+  html += '</div><div class="wp-day-actions">' +
+    '<button class="wp-text-btn" data-action="add-new-for-day" data-day="' + esc(day) + '">' + ICONS.plus + ' ' + (ui.daySearch.trim() ? ('„' + esc(ui.daySearch.trim()) + '“ neu anlegen') : 'Neues Gericht anlegen') + '</button>';
+  if(hasRecipe){
+    html += '<button class="wp-clear-btn" data-action="assign-day" data-day="' + esc(day) + '" data-recipe="">Tag freilassen</button>';
+  }
+  html += '</div></div>';
+  return html;
+}
+function renderDayList(days){
+  var html = '';
+  DAYS.forEach(function(day){
+    var info = days[day];
+    var recipe = info.recipeId ? recipes.find(function(r){ return r.id === info.recipeId; }) : null;
+    var isOpen = ui.openDay === day;
+    html += '<div class="wp-day"><div class="wp-day-row" data-action="toggle-day" data-day="' + esc(day) + '">' +
+      '<span class="wp-day-name wp-serif">' + day + '</span>' +
+      '<div class="wp-day-main">';
+    if(recipe){
+      html += '<div class="wp-day-recipe">' + esc(recipe.name) + '</div>' +
+        '<div class="wp-day-meta">von ' + esc(recipe.addedBy) + (recipe.ingredients.length === 0 ? ' · Zutaten fehlen noch' : '') + '</div>';
+    } else {
+      html += '<div class="wp-day-empty">Gericht wählen …</div>';
+    }
+    html += '</div><span class="wp-day-chevron ' + (isOpen?'open':'') + '">' + ICONS.chevron + '</span></div>';
+    if(isOpen) html += renderDayPanel(day, days);
+    html += '</div>';
+  });
+  return html;
+}
+function renderPlanTab(){
+  var activeDays = ui.weekView === 'next' ? nextPlan.days : plan.days;
+  var nextPlannedCount = Object.keys(nextPlan.days).filter(function(d){ return nextPlan.days[d].recipeId; }).length;
+  var html = '<div class="wp-section">' +
+    '<div class="wp-weekswitch"><div class="wp-weekpill">' +
+      '<button class="' + (ui.weekView==='current'?'active':'') + '" data-action="weekview" data-view="current">Diese Woche</button>' +
+      '<button class="' + (ui.weekView==='next'?'active':'') + '" data-action="weekview" data-view="next">' + ICONS.calendar + ' Nächste Woche vormerken</button>' +
+    '</div></div>';
+  if(ui.weekView === 'current' && nextPlannedCount > 0){
+    html += '<div class="wp-carry-banner">' +
+      '<span class="wp-carry-text">' + ICONS.calendar + ' ' + nextPlannedCount + ' Gericht' + (nextPlannedCount>1?'e':'') + ' für nächste Woche vorgemerkt</span>' +
+      '<button class="wp-carry-btn" data-action="switch-week">Jetzt übernehmen ' + ICONS.arrow + '</button>' +
+    '</div>';
+  }
+  html += renderDayList(activeDays);
+  var suggestions = getSuggestions(recipes, activeDays);
+  if(suggestions.length){
+    html += '<div class="wp-sugg"><div class="wp-sugg-head">' + ICONS.sparkles + ' Passt gut dazu — nutzt ähnliche Zutaten</div>';
+    suggestions.forEach(function(s){
+      var r = s.recipe;
+      html += '<div class="wp-sugg-item"><div><div class="wp-sugg-name">' + esc(r.name) + '</div><div class="wp-sugg-sub">von ' + esc(r.addedBy) + '</div></div>' +
+        '<select class="wp-sugg-select" data-action="sugg-assign" data-recipe="' + r.id + '"><option value="" selected disabled>für Tag …</option>' +
+        DAYS.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') + '</select></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+function renderBoxTab(){
+  var q = ui.boxSearch.trim().toLowerCase();
+  var filtered = q ? recipes.filter(function(r){ return r.name.toLowerCase().indexOf(q) > -1 || r.tags.some(function(t){ return t.indexOf(q) > -1; }); }) : recipes;
+  var html = '<div class="wp-section">' +
+    '<div class="wp-box-search">' + ICONS.search + '<input id="boxSearchInput" placeholder="Rezept oder Zutat suchen …" value="' + esc(ui.boxSearch) + '"></div>' +
+    '<div class="wp-box-add"><button class="wp-btn-primary" data-action="open-add-recipe">' + ICONS.plus + ' Rezept anlegen</button></div>' +
+    '<div class="wp-box-grid">';
+  if(!filtered.length){ html += '<p class="wp-empty">Kein Rezept gefunden.</p>'; }
+  filtered.forEach(function(r){
+    html += '<div class="wp-box-card" data-action="open-edit-recipe" data-recipe="' + r.id + '"><div>' +
+      '<div class="wp-box-card-name">' + esc(r.name) + '</div>' +
+      '<div class="wp-box-card-sub">von ' + esc(r.addedBy) + ' · für ' + r.servings + ' Personen · ' + r.ingredients.length + ' Zutaten</div>';
+    if(r.tags.length) html += '<div class="wp-box-card-tags">' + r.tags.map(esc).join(' · ') + '</div>';
+    html += '</div><div class="wp-box-card-icons">' + (r.url ? ICONS.external : '') + ICONS.pencil + '</div></div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+function renderListTab(){
+  var shopping = buildShoppingList(recipes, plan);
+  var plannedCount = Object.keys(plan.days).filter(function(d){ return plan.days[d].recipeId; }).length;
+  var html = '<div class="wp-section"><div class="wp-list-summary">' + ICONS.cart + ' ' + plannedCount + ' von 7 Tagen geplant · für ' + plan.persons + ' Personen</div>';
+  var cats = Object.keys(shopping.byCategory);
+  if(!cats.length){ html += '<p class="wp-empty">Noch keine Zutaten in der Liste — plant Gerichte für „Diese Woche“ ein.</p>'; }
+  cats.forEach(function(cat){
+    html += '<div class="wp-cat"><div class="wp-cat-title">' + esc(cat) + '</div>';
+    shopping.byCategory[cat].forEach(function(item){
+      var key = item.name + item.unit;
+      var isDone = !!ui.checked[key];
+      html += '<div class="wp-item ' + (isDone?'done':'') + '" data-action="toggle-checked" data-key="' + esc(key) + '">' +
+        '<span class="wp-checkbox ' + (isDone?'on':'') + '">' + (isDone?ICONS.check:'') + '</span>' +
+        '<span class="wp-item-name">' + esc(item.name) + '</span>' +
+        '<span class="wp-item-amount">' + item.amount + ' ' + esc(item.unit) + '</span></div>';
+    });
+    html += '</div>';
+  });
+  if(shopping.missing.length){
+    html += '<div class="wp-missing"><strong>Zutaten fehlen noch für:</strong> ' + shopping.missing.map(esc).join(', ') + '. Öffnet das Rezept in der Rezeptbox, um sie zu ergänzen.</div>';
+  }
+  html += '</div>';
+  return html;
+}
+function renderModal(){
+  var m = ui.modal;
+  var ingHtml = '';
+  if(!m.ingredients.length){
+    ingHtml = '<p class="wp-muted-note">Noch keine Zutaten hinterlegt — dann fehlt dieses Rezept später in der Einkaufsliste.</p>';
+  }
+  m.ingredients.forEach(function(ing, idx){
+    ingHtml += '<div class="wp-ing-row">' +
+      '<input id="ing-name-' + idx + '" class="wp-ing-name" placeholder="Zutat" data-field="ing-name" data-idx="' + idx + '" value="' + esc(ing.name) + '">' +
+      '<input id="ing-amount-' + idx + '" class="wp-ing-amount" type="number" step="0.1" placeholder="Menge" data-field="ing-amount" data-idx="' + idx + '" value="' + esc(String(ing.amount)) + '">' +
+      '<select id="ing-unit-' + idx + '" class="wp-ing-unit" data-field="ing-unit" data-idx="' + idx + '">' +
+        UNITS.map(function(u){ return '<option value="' + u + '" ' + (u===ing.unit?'selected':'') + '>' + u + '</option>'; }).join('') +
+      '</select>' +
+      '<select id="ing-cat-' + idx + '" class="wp-ing-cat" data-field="ing-cat" data-idx="' + idx + '">' +
+        CATEGORIES.map(function(c){ return '<option value="' + c + '" ' + (c===ing.category?'selected':'') + '>' + c + '</option>'; }).join('') +
+      '</select>' +
+      '<button class="wp-icon-btn" data-action="remove-ingredient" data-idx="' + idx + '">' + ICONS.trash + '</button>' +
+    '</div>';
+  });
+  return '<div class="wp-modal-backdrop" data-action="modal-close">' +
+    '<div class="wp-modal" onclick="event.stopPropagation()">' +
+      '<div class="wp-modal-head"><h3>' + (m.editingId ? 'Rezept bearbeiten' : 'Neues Rezept') + '</h3><button class="wp-icon-btn" data-action="modal-close">' + ICONS.x + '</button></div>' +
+      '<div class="wp-modal-body">' +
+        '<label class="wp-field"><span>Name</span><input id="modalName" value="' + esc(m.name) + '" placeholder="z. B. Ofengemüse"></label>' +
+        '<div class="wp-field-row">' +
+          '<label class="wp-field"><span>Hinzugefügt von</span><input id="modalAddedBy" value="' + esc(m.addedBy) + '" placeholder="Name"></label>' +
+          '<label class="wp-field wp-field-narrow"><span>Portionen (Basis)</span><input id="modalServings" type="number" min="1" value="' + esc(String(m.servings)) + '"></label>' +
+        '</div>' +
+        '<label class="wp-field"><span>Stichworte <em>(kommagetrennt, hilft bei Vorschlägen)</em></span><input id="modalTags" value="' + esc(m.tagsText) + '" placeholder="z. B. kartoffel, hackfleisch"></label>' +
+        '<label class="wp-field"><span>Link zum Rezept <em>(optional)</em></span><input id="modalUrl" value="' + esc(m.url) + '" placeholder="https://..."></label>' +
+        '<div class="wp-ing-head"><span>Zutaten <em>für ' + esc(String(m.servings || 4)) + ' Personen</em></span><button class="wp-text-btn" data-action="add-ingredient">' + ICONS.plus + ' Zutat</button></div>' +
+        ingHtml +
+      '</div>' +
+      '<div class="wp-modal-foot">' +
+        (m.editingId ? '<button class="wp-text-btn wp-danger" data-action="modal-delete">' + ICONS.trash + ' Rezept löschen</button>' : '<span></span>') +
+        '<div class="wp-modal-foot-actions">' +
+          '<button class="wp-btn-ghost" data-action="modal-close">Abbrechen</button>' +
+          '<button class="wp-btn-primary" data-action="modal-save"' + (!m.name.trim() ? ' disabled' : '') + '>Speichern</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function renderSetupNotice(){
+  return '<div class="wp-section"><div class="wp-missing" style="margin-top:20px;">' +
+    '<strong>Noch nicht eingerichtet.</strong> Trag oben im Code (Abschnitt „FIREBASE-EINRICHTUNG“) euer <code>firebaseConfig</code> und einen eigenen <code>HOUSEHOLD_ID</code>-Code ein, dann speichert und lädt die App geräteübergreifend.' +
+    '</div></div>';
+}
+function renderCloudError(msg){
+  return '<div class="wp-section"><div class="wp-missing" style="margin-top:20px;">' +
+    '<strong>Verbindung fehlgeschlagen.</strong> ' + esc(msg) + '<br><br>Prüft: Ist die Firestore-Datenbank angelegt, ist „Anonym“ als Anmeldemethode aktiviert und sind die Firestore-Regeln veröffentlicht?' +
+    '</div></div>';
+}
+function renderLoading(){
+  return '<div class="wp-section"><p class="wp-empty">Verbinde …</p></div>';
+}
+function render(){
+  var app = document.getElementById('app');
+  if(cloud.error === 'config'){ app.innerHTML = renderHeader() + renderTabs() + renderSetupNotice(); return; }
+  if(cloud.error){ app.innerHTML = renderHeader() + renderTabs() + renderCloudError(cloud.error); return; }
+  if(!cloud.ready){ app.innerHTML = renderHeader() + renderLoading(); return; }
+  var html = renderHeader() + renderTabs();
+  if(ui.tab === 'plan') html += renderPlanTab();
+  else if(ui.tab === 'box') html += renderBoxTab();
+  else html += renderListTab();
+  html += '<p class="wp-footer-note">Synchronisiert automatisch über alle Geräte hinweg, die diese Datei mit derselben Konfiguration öffnen.</p>';
+  app.innerHTML = html;
+  if(ui.modal) app.insertAdjacentHTML('beforeend', renderModal());
+}
+function update(){
+  var active = document.activeElement;
+  var activeId = active && active.id;
+  var selStart = null, selEnd = null;
+  if(active && typeof active.selectionStart === 'number'){ selStart = active.selectionStart; selEnd = active.selectionEnd; }
+  saveState();
+  render();
+  if(activeId){
+    var el = document.getElementById(activeId);
+    if(el){
+      el.focus();
+      if(selStart !== null && el.setSelectionRange){ try{ el.setSelectionRange(selStart, selEnd); }catch(e){} }
+    }
+  }
+}
+
+// ---- Events ----
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-action]');
+  if(!el) return;
+  var action = el.dataset.action;
+  switch(action){
+    case 'tab': ui.tab = el.dataset.tab; ui.openDay = null; break;
+    case 'weekview': ui.weekView = el.dataset.view; ui.openDay = null; ui.daySearch = ''; break;
+    case 'switch-week': switchWeek(); break;
+    case 'persons-minus': plan.persons = Math.max(1, plan.persons - 1); break;
+    case 'persons-plus': plan.persons += 1; break;
+    case 'toggle-day': { var day = el.dataset.day; ui.openDay = ui.openDay === day ? null : day; ui.daySearch = ''; break; }
+    case 'assign-day': { assignRecipe(el.dataset.day, el.dataset.recipe || null); break; }
+    case 'add-new-for-day': { openAddModal(el.dataset.day, ui.daySearch); break; }
+    case 'open-add-recipe': openAddModal(); break;
+    case 'open-edit-recipe': { var r = recipes.find(function(x){ return x.id === el.dataset.recipe; }); if(r) openEditModal(r); break; }
+    case 'modal-close': ui.modal = null; break;
+    case 'modal-save': saveModal(); break;
+    case 'modal-delete': deleteRecipeFromModal(); break;
+    case 'add-ingredient': ui.modal.ingredients.push({ id: uid('ing'), name: '', amount: '', unit: 'Stück', category: 'Sonstiges' }); break;
+    case 'remove-ingredient': { var idx = +el.dataset.idx; ui.modal.ingredients.splice(idx, 1); break; }
+    case 'toggle-checked': { var key = el.dataset.key; ui.checked[key] = !ui.checked[key]; break; }
+    default: return;
+  }
+  update();
+});
+
+document.addEventListener('input', function(e){
+  var el = e.target;
+  if(el.id === 'daySearchInput'){ ui.daySearch = el.value; update(); return; }
+  if(el.id === 'boxSearchInput'){ ui.boxSearch = el.value; update(); return; }
+  if(!ui.modal) return;
+  if(el.id === 'modalName'){ ui.modal.name = el.value; update(); return; }
+  if(el.id === 'modalAddedBy'){ ui.modal.addedBy = el.value; update(); return; }
+  if(el.id === 'modalServings'){ ui.modal.servings = el.value; update(); return; }
+  if(el.id === 'modalTags'){ ui.modal.tagsText = el.value; update(); return; }
+  if(el.id === 'modalUrl'){ ui.modal.url = el.value; update(); return; }
+  var field = el.dataset.field;
+  if(field && el.dataset.idx !== undefined){
+    var idx = +el.dataset.idx;
+    if(field === 'ing-name'){ ui.modal.ingredients[idx].name = el.value; update(); }
+    else if(field === 'ing-amount'){ ui.modal.ingredients[idx].amount = el.value; update(); }
+  }
+});
+
+document.addEventListener('change', function(e){
+  var el = e.target;
+  if(el.matches('[data-action="sugg-assign"]')){
+    var day = el.value, rid = el.dataset.recipe;
+    if(day){ assignRecipe(day, rid); update(); }
+    return;
+  }
+  if(!ui.modal) return;
+  var field = el.dataset.field;
+  if(field && el.dataset.idx !== undefined){
+    var idx = +el.dataset.idx;
+    if(field === 'ing-unit'){ ui.modal.ingredients[idx].unit = el.value; update(); }
+    else if(field === 'ing-cat'){ ui.modal.ingredients[idx].category = el.value; update(); }
+  }
+});
+
+render();
+initCloud();
+</script>
+</body>
+</html>
