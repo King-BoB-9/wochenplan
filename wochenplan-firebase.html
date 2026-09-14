@@ -90,6 +90,15 @@
   .wp-box-card-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
   .wp-box-card-tags { font-size: 11.5px; color: var(--sage); margin-top: 2px; }
   .wp-box-card-icons { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); flex-shrink: 0; }
+  .wp-ingdb-card { background: var(--paper); color: var(--ink); border-radius: 9px; padding: 12px 14px; margin-bottom: 8px; }
+  .wp-ingdb-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .wp-merge-panel { border-top: 1px solid var(--line-paper); margin-top: 10px; padding-top: 10px; }
+  .wp-merge-panel select { border: 1px solid var(--line-paper); border-radius: 7px; padding: 9px; font-size: 16px; width: 100%; font-family: inherit; background: white; color: var(--ink); }
+  .wp-confirm-backdrop { position: fixed; inset: 0; background: rgba(15,20,17,0.8); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 20px; }
+  .wp-confirm-box { background: var(--paper); color: var(--ink); border-radius: 14px; padding: 20px; max-width: 400px; width: 100%; }
+  .wp-confirm-box h3 { margin: 0 0 8px; font-size: 17px; }
+  .wp-confirm-box p { margin: 0 0 16px; font-size: 14px; color: var(--ink-soft); }
+  .wp-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
   .wp-list-summary { display: flex; align-items: center; gap: 8px; color: rgba(243,236,217,0.65); font-size: 13.5px; margin-bottom: 16px; }
   .wp-cat { margin-bottom: 18px; }
@@ -133,6 +142,13 @@
   .wp-ing-pkg { width: 64px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 6px; font-size: 16px; font-family: inherit; }
   .wp-ing-cat { flex: 1; min-width: 120px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 4px; font-size: 15px; font-family: inherit; background: white; }
   .wp-ing-hint { font-size: 12px; color: var(--ink-soft); font-style: italic; margin: -2px 0 8px; }
+  .wp-ing-warning { font-size: 12px; color: var(--rust); background: rgba(177,75,50,0.08); border-radius: 6px; padding: 6px 8px; margin: -2px 0 10px; }
+  .wp-ing-pkg-missing { border-color: var(--rust) !important; }
+  .wp-ing-suggest { background: var(--paper-soft); border-radius: 7px; margin: -4px 0 8px; overflow: hidden; border: 1px solid var(--line-paper); }
+  .wp-ing-suggest-item { display: block; width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--line-paper); padding: 8px 10px; font-size: 14px; color: var(--ink); cursor: pointer; font-family: inherit; }
+  .wp-ing-suggest-item:first-child { border-top: none; }
+  .wp-ing-suggest-item:hover { background: white; }
+  .wp-ing-suggest-meta { color: var(--ink-soft); font-size: 12px; }
   .wp-modal-foot { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--line-paper); }
   .wp-modal-foot-actions { display: flex; gap: 8px; }
 
@@ -187,7 +203,8 @@ var ICONS = {
   arrow: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
   external: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>',
   pencil: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
-  cart: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>'
+  cart: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>',
+  merge: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a2 2 0 0 1 2-2h16"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a2 2 0 0 1-2 2H3"></path></svg>'
 };
 
 function uid(prefix){ return (prefix||'id') + '-' + Math.random().toString(36).slice(2, 9); }
@@ -429,9 +446,71 @@ function buildInitialRecipes(){
     var name = row[0], addedBy = row[1], tags = row[2], ings = row[3], url = row[4];
     return {
       id: uid('r'), name: name, addedBy: addedBy, tags: tags, servings: 4, url: url,
-      ingredients: ings.map(function(i){ return { id: uid('ing'), name: i[0], amount: i[1], unit: i[2], category: i[3] }; })
+      ingredients: ings.map(function(i){ return { id: uid('ing'), name: i[0], amount: i[1], unit: i[2], category: i[3], pkg: null }; })
     };
   });
+}
+
+function buildInitialIngredientDB(recipes){
+  var map = {};
+  recipes.forEach(function(r){
+    r.ingredients.forEach(function(ing){
+      var key = ing.name.toLowerCase() + '|' + ing.unit;
+      if(!map[key]) map[key] = { id: uid('ingdb'), name: ing.name, unit: ing.unit, category: ing.category, pkg: ing.pkg || null };
+    });
+  });
+  return Object.values(map).sort(function(a,b){ return a.name.localeCompare(b.name, 'de'); });
+}
+
+// Handkuratierte Begriffsgruppen, damit z. B. "Hackfleisch" auch "Hackepeter" vorschlägt.
+// Kann hier erweitert werden — einfach weitere Zeilen ergänzen.
+var INGREDIENT_SYNONYMS = {
+  'hackfleisch': ['hackepeter', 'mett', 'tatar', 'faschiertes', 'gehacktes', 'rinderhack', 'schweinehack'],
+  'sahne': ['schlagsahne', 'kochsahne', 'creme fraiche', 'crème fraîche', 'schmand'],
+  'käse': ['reibekäse', 'gouda', 'emmentaler', 'cheddar', 'mozzarella', 'parmesan', 'feta'],
+  'kartoffel': ['kartoffeln', 'erdapfel'],
+  'zwiebel': ['zwiebeln', 'schalotte', 'schalotten'],
+  'tomate': ['tomaten', 'passierte tomaten', 'tomatenmark', 'cocktailtomaten'],
+  'nudeln': ['pasta', 'spaghetti', 'spätzle', 'gnocchi'],
+  'wurst': ['würstchen', 'bratwurst', 'wiener würstchen', 'chorizo'],
+  'fisch': ['lachs', 'fischstäbchen', 'forelle', 'garnelen'],
+  'gemüse': ['möhre', 'karotte', 'karotten', 'paprika', 'zucchini', 'brokkoli']
+};
+function relatedTerms(term){
+  var out = new Set([term]);
+  Object.keys(INGREDIENT_SYNONYMS).forEach(function(key){
+    var group = [key].concat(INGREDIENT_SYNONYMS[key]);
+    if(group.indexOf(term) > -1){ group.forEach(function(g){ out.add(g); }); }
+  });
+  return Array.from(out);
+}
+function findIngredientSuggestions(ingredientDB, query){
+  var q = query.toLowerCase().trim();
+  if(!q) return [];
+  var terms = relatedTerms(q);
+  var direct = [], related = [];
+  ingredientDB.forEach(function(item){
+    var n = item.name.toLowerCase();
+    if(n.indexOf(q) > -1 || q.indexOf(n) > -1){ direct.push(item); return; }
+    var isRelated = terms.some(function(t){ return t !== q && n.indexOf(t) > -1; });
+    if(isRelated) related.push(item);
+  });
+  return direct.concat(related).slice(0, 8).map(function(item, i){ return { item: item, related: i >= direct.length }; });
+}
+function mergeIngredient(ingredientDB, recipes, fromId, toId){
+  var from = ingredientDB.find(function(x){ return x.id === fromId; });
+  var to = ingredientDB.find(function(x){ return x.id === toId; });
+  if(!from || !to || from.id === to.id) return { ingredientDB: ingredientDB, recipes: recipes };
+  var fromName = from.name.toLowerCase();
+  recipes.forEach(function(r){
+    r.ingredients.forEach(function(ing){
+      // Nur der Name (und die Kategorie) wird ersetzt — Menge und Einheit im Rezept bleiben unangetastet.
+      if(ing.name.toLowerCase() === fromName){
+        ing.name = to.name; ing.category = to.category;
+      }
+    });
+  });
+  return { ingredientDB: ingredientDB.filter(function(x){ return x.id !== fromId; }), recipes: recipes };
 }
 
 function emptyDays(){
@@ -529,7 +608,8 @@ function buildShoppingList(recipes, plan){
 
 // ---- State ----
 var recipes = buildInitialRecipes(), plan = emptyPlan(), nextPlan = { days: emptyDays() };
-var ui = { tab: 'plan', weekView: 'current', openDay: null, daySearch: '', boxSearch: '', checked: {}, modal: null };
+var ingredientDB = buildInitialIngredientDB(recipes);
+var ui = { tab: 'plan', weekView: 'current', openDay: null, daySearch: '', boxSearch: '', ingSearch: '', checked: {}, modal: null, ingEdit: null, mergeOpenId: null, confirmMerge: null };
 var cloud = { ready: false, error: null, docRef: null, applyingRemote: false };
 
 function isConfigured(){
@@ -560,11 +640,13 @@ function initCloud(){
           plan.days = migrateDays(plan.days);
           nextPlan = d.nextPlan || { days: emptyDays() };
           nextPlan.days = migrateDays(nextPlan.days);
+          ingredientDB = (d.ingredientDB && d.ingredientDB.length) ? d.ingredientDB : buildInitialIngredientDB(recipes);
         } else {
           recipes = buildInitialRecipes();
           plan = emptyPlan();
           nextPlan = { days: emptyDays() };
-          setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan }).catch(function(e){ cloud.error = e.message; });
+          ingredientDB = buildInitialIngredientDB(recipes);
+          setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan, ingredientDB: ingredientDB }).catch(function(e){ cloud.error = e.message; });
         }
         cloud.ready = true;
         cloud.applyingRemote = false;
@@ -584,7 +666,7 @@ function initCloud(){
 
 function saveState(){
   if(cloud.applyingRemote || !cloud.docRef) return;
-  setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan }).catch(function(e){
+  setDoc(cloud.docRef, { recipes: recipes, plan: plan, nextPlan: nextPlan, ingredientDB: ingredientDB }).catch(function(e){
     cloud.error = e.message; render();
   });
 }
@@ -609,13 +691,14 @@ function switchWeek(){
   ui.checked = {}; ui.weekView = 'current'; ui.openDay = null;
 }
 function openAddModal(forDay, presetName){
-  ui.modal = { forDay: forDay || null, editingId: null, name: presetName || '', addedBy: '', servings: 4, tagsText: '', url: '', ingredients: [] };
+  ui.modal = { forDay: forDay || null, editingId: null, name: presetName || '', addedBy: '', servings: 4, tagsText: '', url: '', ingredients: [], activeSuggestIdx: null, error: null };
 }
 function openEditModal(recipe){
   ui.modal = {
     forDay: null, editingId: recipe.id, name: recipe.name, addedBy: recipe.addedBy,
     servings: recipe.servings, tagsText: recipe.tags.join(', '), url: recipe.url || '',
-    ingredients: recipe.ingredients.map(function(i){ return Object.assign({}, i); })
+    ingredients: recipe.ingredients.map(function(i){ return Object.assign({}, i); }),
+    activeSuggestIdx: null, error: null
   };
 }
 function saveModal(){
@@ -642,6 +725,11 @@ function saveModal(){
       tags: tags, url: m.url.trim() || null, ingredients: ingredients
     });
   }
+  ingredients.forEach(function(ing){
+    var key = ing.name.toLowerCase() + '|' + ing.unit;
+    var exists = ingredientDB.some(function(x){ return x.name.toLowerCase() + '|' + x.unit === key; });
+    if(!exists){ ingredientDB.push({ id: uid('ingdb'), name: ing.name, unit: ing.unit, category: ing.category, pkg: ing.pkg || null }); }
+  });
   if(m.forDay) addRecipeToDay(m.forDay, newId);
   ui.modal = null;
 }
@@ -654,6 +742,44 @@ function deleteRecipeFromModal(){
     });
   });
   ui.modal = null;
+}
+function pickIngredientSuggestion(idx, ingId){
+  var dbItem = ingredientDB.find(function(x){ return x.id === ingId; });
+  if(dbItem){
+    var row = ui.modal.ingredients[idx];
+    row.name = dbItem.name; row.unit = dbItem.unit; row.category = dbItem.category; row.pkg = dbItem.pkg;
+  }
+  ui.modal.activeSuggestIdx = null;
+}
+function openIngEdit(item){
+  ui.ingEdit = item
+    ? { editingId: item.id, name: item.name, unit: item.unit, category: item.category, pkg: item.pkg || '' }
+    : { editingId: null, name: '', unit: UNITS[0], category: CATEGORIES[0], pkg: '' };
+}
+function saveIngEdit(){
+  var m = ui.ingEdit;
+  if(!m.name.trim()) return;
+  var pkgNum = Number(m.pkg) || 0;
+  if(m.editingId){
+    var idx = ingredientDB.findIndex(function(x){ return x.id === m.editingId; });
+    if(idx > -1){ ingredientDB[idx] = { id: m.editingId, name: m.name.trim(), unit: m.unit, category: m.category, pkg: pkgNum > 0 ? pkgNum : null }; }
+  } else {
+    ingredientDB.push({ id: uid('ingdb'), name: m.name.trim(), unit: m.unit, category: m.category, pkg: pkgNum > 0 ? pkgNum : null });
+  }
+  ui.ingEdit = null;
+}
+function deleteIngEdit(){
+  ingredientDB = ingredientDB.filter(function(x){ return x.id !== ui.ingEdit.editingId; });
+  ui.ingEdit = null;
+}
+function confirmMergeExecute(){
+  var cm = ui.confirmMerge;
+  if(!cm) return;
+  var result = mergeIngredient(ingredientDB, recipes, cm.fromId, cm.toId);
+  ingredientDB = result.ingredientDB;
+  recipes = result.recipes;
+  ui.confirmMerge = null;
+  ui.mergeOpenId = null;
 }
 
 // ---- Render ----
@@ -677,8 +803,49 @@ function renderTabs(){
     '<div class="wp-tabs">' +
       '<button class="wp-tab ' + (ui.tab==='plan'?'active':'') + '" data-action="tab" data-tab="plan">Wochenplan</button>' +
       '<button class="wp-tab ' + (ui.tab==='box'?'active':'') + '" data-action="tab" data-tab="box">Rezeptbox</button>' +
+      '<button class="wp-tab ' + (ui.tab==='ingredients'?'active':'') + '" data-action="tab" data-tab="ingredients">Zutaten</button>' +
       '<button class="wp-tab ' + (ui.tab==='list'?'active':'') + '" data-action="tab" data-tab="list">Einkaufsliste</button>' +
     '</div>';
+}
+function renderIngredientsTab(){
+  var q = ui.ingSearch.trim().toLowerCase();
+  var filtered = q ? ingredientDB.filter(function(i){ return i.name.toLowerCase().indexOf(q) > -1; }) : ingredientDB;
+  var html = '<div class="wp-section">' +
+    '<div class="wp-box-search">' + ICONS.search + '<input id="ingSearchInput" placeholder="Zutat suchen …" value="' + esc(ui.ingSearch) + '"></div>' +
+    '<div class="wp-box-add"><button class="wp-btn-primary" data-action="open-add-ing">' + ICONS.plus + ' Zutat anlegen</button></div>' +
+    '<p class="wp-ing-hint">Diese Liste füllt sich automatisch, wenn ihr in Rezepten neue Zutaten anlegt. Hier könnt ihr sie vereinheitlichen — z. B. zwei unterschiedlich geschriebene Zutaten zusammenführen.</p>' +
+    '<div class="wp-box-grid">';
+  if(!filtered.length){ html += '<p class="wp-empty">Keine Zutat gefunden.</p>'; }
+  filtered.forEach(function(item){
+    html += '<div class="wp-ingdb-card">' +
+      '<div class="wp-ingdb-row">' +
+        '<div>' +
+          '<div class="wp-box-card-name">' + esc(item.name) + '</div>' +
+          '<div class="wp-box-card-sub">' + esc(item.category) + (item.pkg ? (' · à ' + item.pkg + ' ' + esc(item.unit)) : (' · ' + esc(item.unit) + ' · keine Packungsgröße')) + '</div>' +
+        '</div>' +
+        '<div class="wp-box-card-icons">' +
+          '<button class="wp-icon-btn" data-action="open-edit-ing" data-ingid="' + item.id + '">' + ICONS.pencil + '</button>' +
+          '<button class="wp-icon-btn" data-action="toggle-merge" data-ingid="' + item.id + '">' + ICONS.merge + '</button>' +
+        '</div>' +
+      '</div>';
+    if(ui.mergeOpenId === item.id){
+      var others = ingredientDB.filter(function(x){ return x.id !== item.id; });
+      html += '<div class="wp-merge-panel">';
+      if(others.length){
+        html += '<label class="wp-field"><span>Ersetzen durch <em>(Mengen in den Rezepten bleiben unverändert)</em></span>' +
+          '<select id="merge-target-' + item.id + '">' +
+          others.map(function(o){ return '<option value="' + o.id + '">' + esc(o.name) + '</option>'; }).join('') +
+          '</select></label>' +
+          '<button class="wp-text-btn wp-danger" data-action="request-merge" data-ingid="' + item.id + '">' + ICONS.merge + ' „' + esc(item.name) + '“ überall ersetzen</button>';
+      } else {
+        html += '<p class="wp-muted-note">Keine andere Zutat vorhanden.</p>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div></div>';
+  return html;
 }
 function renderDayPanel(day, days){
   var q = ui.daySearch.trim().toLowerCase();
@@ -819,21 +986,36 @@ function renderListTab(){
 function renderModal(){
   var m = ui.modal;
   var ingHtml = '';
+  var missingPkgCount = 0;
   if(!m.ingredients.length){
     ingHtml = '<p class="wp-muted-note">Noch keine Zutaten hinterlegt — dann fehlt dieses Rezept später in der Einkaufsliste.</p>';
   }
   m.ingredients.forEach(function(ing, idx){
+    if(ing.name.trim() && !ing.pkg) missingPkgCount++;
     ingHtml += '<div class="wp-ing-card">' +
       '<div class="wp-ing-row-top">' +
-        '<input id="ing-name-' + idx + '" class="wp-ing-name" placeholder="Zutat" data-field="ing-name" data-idx="' + idx + '" value="' + esc(ing.name) + '">' +
+        '<input id="ing-name-' + idx + '" class="wp-ing-name" placeholder="Zutat" autocomplete="off" data-field="ing-name" data-idx="' + idx + '" value="' + esc(ing.name) + '">' +
         '<button class="wp-icon-btn" data-action="remove-ingredient" data-idx="' + idx + '">' + ICONS.trash + '</button>' +
-      '</div>' +
+      '</div>';
+    if(ui.modal.activeSuggestIdx === idx){
+      var suggs = findIngredientSuggestions(ingredientDB, ing.name);
+      if(suggs.length){
+        ingHtml += '<div class="wp-ing-suggest">';
+        suggs.forEach(function(s){
+          ingHtml += '<button class="wp-ing-suggest-item" data-action="pick-ingredient" data-idx="' + idx + '" data-ingid="' + s.item.id + '">' +
+            esc(s.item.name) + ' <span class="wp-ing-suggest-meta">' + (s.item.pkg ? ('à ' + s.item.pkg + ' ' + esc(s.item.unit)) : esc(s.item.unit)) + (s.related ? ' · ähnlich' : '') + '</span>' +
+          '</button>';
+        });
+        ingHtml += '</div>';
+      }
+    }
+    ingHtml +=
       '<div class="wp-ing-row-bottom">' +
         '<input id="ing-amount-' + idx + '" class="wp-ing-amount" type="number" step="0.1" inputmode="decimal" placeholder="Menge" data-field="ing-amount" data-idx="' + idx + '" value="' + esc(String(ing.amount)) + '">' +
         '<select id="ing-unit-' + idx + '" class="wp-ing-unit" data-field="ing-unit" data-idx="' + idx + '">' +
           UNITS.map(function(u){ return '<option value="' + u + '" ' + (u===ing.unit?'selected':'') + '>' + u + '</option>'; }).join('') +
         '</select>' +
-        '<div class="wp-ing-pkg-wrap"><span>à</span><input id="ing-pkg-' + idx + '" class="wp-ing-pkg" type="number" step="0.1" inputmode="decimal" placeholder="Pkg." title="Packungsgröße (optional) — z. B. 400 wenn im 400g-Beutel verkauft" data-field="ing-pkg" data-idx="' + idx + '" value="' + (ing.pkg ? esc(String(ing.pkg)) : '') + '"></div>' +
+        '<div class="wp-ing-pkg-wrap"><span>à</span><input id="ing-pkg-' + idx + '" class="wp-ing-pkg' + (!ing.pkg && ing.name.trim() ? ' wp-ing-pkg-missing' : '') + '" type="number" step="0.1" inputmode="decimal" placeholder="Pkg." title="Packungsgröße — z. B. 400 wenn im 400g-Beutel verkauft" data-field="ing-pkg" data-idx="' + idx + '" value="' + (ing.pkg ? esc(String(ing.pkg)) : '') + '"></div>' +
         '<select id="ing-cat-' + idx + '" class="wp-ing-cat" data-field="ing-cat" data-idx="' + idx + '">' +
           CATEGORIES.map(function(c){ return '<option value="' + c + '" ' + (c===ing.category?'selected':'') + '>' + c + '</option>'; }).join('') +
         '</select>' +
@@ -852,7 +1034,8 @@ function renderModal(){
         '<label class="wp-field"><span>Stichworte <em>(kommagetrennt, hilft bei Vorschlägen)</em></span><input id="modalTags" value="' + esc(m.tagsText) + '" placeholder="z. B. kartoffel, hackfleisch"></label>' +
         '<label class="wp-field"><span>Link zum Rezept <em>(optional)</em></span><input id="modalUrl" value="' + esc(m.url) + '" placeholder="https://..."></label>' +
         '<div class="wp-ing-head"><span>Zutaten <em>für ' + esc(String(m.servings || 4)) + ' Personen</em></span><button class="wp-text-btn" data-action="add-ingredient">' + ICONS.plus + ' Zutat</button></div>' +
-        '<p class="wp-ing-hint">„à" ist optional: Packungsgröße im Laden (z. B. 400 bei einem 400g-Beutel) — damit rundet die Einkaufsliste auf ganze Packungen und zeigt Restmengen.</p>' +
+        '<p class="wp-ing-hint">Tippt einen Namen — Vorschläge aus der Zutaten-Datenbank erscheinen darunter. „à" ist die Packungsgröße im Laden (z. B. 400 bei einem 400g-Beutel) — bitte für jede Zutat angeben, damit die Einkaufsliste genau rechnet.</p>' +
+        (missingPkgCount ? '<p class="wp-ing-warning">' + missingPkgCount + ' Zutat' + (missingPkgCount>1?'en':'') + ' ohne Packungsgröße — Speichern geht trotzdem, die Einkaufsliste rechnet dafür nur den reinen Bedarf.</p>' : '') +
         ingHtml +
       '</div>' +
       '<div class="wp-modal-foot">' +
@@ -878,6 +1061,44 @@ function renderCloudError(msg){
 function renderLoading(){
   return '<div class="wp-section"><p class="wp-empty">Verbinde …</p></div>';
 }
+function renderIngEditModal(){
+  var m = ui.ingEdit;
+  return '<div class="wp-modal-backdrop" id="ingEditBackdrop">' +
+    '<div class="wp-modal">' +
+      '<div class="wp-modal-head"><h3>' + (m.editingId ? 'Zutat bearbeiten' : 'Neue Zutat') + '</h3><button class="wp-icon-btn" data-action="ing-edit-close">' + ICONS.x + '</button></div>' +
+      '<div class="wp-modal-body">' +
+        '<label class="wp-field"><span>Name</span><input id="ingEditName" value="' + esc(m.name) + '" placeholder="z. B. Hackfleisch gemischt"></label>' +
+        '<div class="wp-field-row">' +
+          '<label class="wp-field"><span>Einheit</span><select id="ingEditUnit">' + UNITS.map(function(u){ return '<option value="' + u + '" ' + (u===m.unit?'selected':'') + '>' + u + '</option>'; }).join('') + '</select></label>' +
+          '<label class="wp-field wp-field-narrow"><span>Packungsgröße</span><input id="ingEditPkg" type="number" step="0.1" inputmode="decimal" placeholder="z. B. 400" value="' + esc(String(m.pkg)) + '"></label>' +
+        '</div>' +
+        '<label class="wp-field"><span>Kategorie</span><select id="ingEditCategory">' + CATEGORIES.map(function(c){ return '<option value="' + c + '" ' + (c===m.category?'selected':'') + '>' + c + '</option>'; }).join('') + '</select></label>' +
+      '</div>' +
+      '<div class="wp-modal-foot">' +
+        (m.editingId ? '<button class="wp-text-btn wp-danger" data-action="ing-edit-delete">' + ICONS.trash + ' Löschen</button>' : '<span></span>') +
+        '<div class="wp-modal-foot-actions">' +
+          '<button class="wp-btn-ghost" data-action="ing-edit-close">Abbrechen</button>' +
+          '<button class="wp-btn-primary" data-action="ing-edit-save"' + (!m.name.trim() ? ' disabled' : '') + '>Speichern</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+function renderConfirmMergeModal(){
+  var cm = ui.confirmMerge;
+  var from = ingredientDB.find(function(x){ return x.id === cm.fromId; });
+  var to = ingredientDB.find(function(x){ return x.id === cm.toId; });
+  return '<div class="wp-confirm-backdrop">' +
+    '<div class="wp-confirm-box">' +
+      '<h3>Zutat wirklich ersetzen?</h3>' +
+      '<p>„' + esc(from ? from.name : '') + '“ wird in <strong>allen Rezepten</strong> durch „' + esc(to ? to.name : '') + '“ ersetzt. Mengen und Einheiten in den Rezepten bleiben dabei unverändert. Das kann nicht rückgängig gemacht werden.</p>' +
+      '<div class="wp-confirm-actions">' +
+        '<button class="wp-btn-ghost" data-action="cancel-merge">Abbrechen</button>' +
+        '<button class="wp-btn-primary" data-action="confirm-merge">Ja, ersetzen</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
 function render(){
   var app = document.getElementById('app');
   if(cloud.error === 'config'){ app.innerHTML = renderHeader() + renderTabs() + renderSetupNotice(); return; }
@@ -886,10 +1107,13 @@ function render(){
   var html = renderHeader() + renderTabs();
   if(ui.tab === 'plan') html += renderPlanTab();
   else if(ui.tab === 'box') html += renderBoxTab();
+  else if(ui.tab === 'ingredients') html += renderIngredientsTab();
   else html += renderListTab();
   html += '<p class="wp-footer-note">Synchronisiert automatisch über alle Geräte hinweg, die diese Datei mit derselben Konfiguration öffnen.</p>';
   app.innerHTML = html;
   if(ui.modal) app.insertAdjacentHTML('beforeend', renderModal());
+  if(ui.ingEdit) app.insertAdjacentHTML('beforeend', renderIngEditModal());
+  if(ui.confirmMerge) app.insertAdjacentHTML('beforeend', renderConfirmMergeModal());
 }
 function update(){
   var active = document.activeElement;
@@ -910,8 +1134,18 @@ function update(){
 // ---- Events ----
 document.addEventListener('click', function(e){
   if(e.target.id === 'modalBackdrop'){ ui.modal = null; update(); return; }
+  if(e.target.id === 'ingEditBackdrop'){ ui.ingEdit = null; update(); return; }
+  var closedSuggest = false;
+  if(ui.modal && ui.modal.activeSuggestIdx != null){
+    var activeInput = document.getElementById('ing-name-' + ui.modal.activeSuggestIdx);
+    var withinSuggest = e.target.closest('.wp-ing-suggest');
+    if(e.target !== activeInput && !withinSuggest){
+      ui.modal.activeSuggestIdx = null;
+      closedSuggest = true;
+    }
+  }
   var el = e.target.closest('[data-action]');
-  if(!el) return;
+  if(!el){ if(closedSuggest) update(); return; }
   var action = el.dataset.action;
   switch(action){
     case 'tab': ui.tab = el.dataset.tab; ui.openDay = null; break;
@@ -929,9 +1163,24 @@ document.addEventListener('click', function(e){
     case 'modal-close': ui.modal = null; break;
     case 'modal-save': saveModal(); break;
     case 'modal-delete': deleteRecipeFromModal(); break;
-    case 'add-ingredient': ui.modal.ingredients.push({ id: uid('ing'), name: '', amount: '', unit: 'Stück', category: 'Sonstiges' }); break;
+    case 'add-ingredient': ui.modal.ingredients.push({ id: uid('ing'), name: '', amount: '', unit: 'Stück', category: 'Sonstiges', pkg: null }); break;
     case 'remove-ingredient': { var idx = +el.dataset.idx; ui.modal.ingredients.splice(idx, 1); break; }
+    case 'pick-ingredient': { pickIngredientSuggestion(+el.dataset.idx, el.dataset.ingid); break; }
     case 'toggle-checked': { var key = el.dataset.key; ui.checked[key] = !ui.checked[key]; break; }
+    case 'open-add-ing': openIngEdit(null); break;
+    case 'open-edit-ing': { var item = ingredientDB.find(function(x){ return x.id === el.dataset.ingid; }); if(item) openIngEdit(item); break; }
+    case 'ing-edit-close': ui.ingEdit = null; break;
+    case 'ing-edit-save': saveIngEdit(); break;
+    case 'ing-edit-delete': deleteIngEdit(); break;
+    case 'toggle-merge': { var mid = el.dataset.ingid; ui.mergeOpenId = ui.mergeOpenId === mid ? null : mid; break; }
+    case 'request-merge': {
+      var fromId = el.dataset.ingid;
+      var select = document.getElementById('merge-target-' + fromId);
+      if(select && select.value){ ui.confirmMerge = { fromId: fromId, toId: select.value }; }
+      break;
+    }
+    case 'cancel-merge': ui.confirmMerge = null; break;
+    case 'confirm-merge': confirmMergeExecute(); break;
     default: return;
   }
   update();
@@ -941,6 +1190,11 @@ document.addEventListener('input', function(e){
   var el = e.target;
   if(el.id === 'daySearchInput'){ ui.daySearch = el.value; update(); return; }
   if(el.id === 'boxSearchInput'){ ui.boxSearch = el.value; update(); return; }
+  if(el.id === 'ingSearchInput'){ ui.ingSearch = el.value; update(); return; }
+  if(ui.ingEdit){
+    if(el.id === 'ingEditName'){ ui.ingEdit.name = el.value; update(); return; }
+    if(el.id === 'ingEditPkg'){ ui.ingEdit.pkg = el.value; update(); return; }
+  }
   if(!ui.modal) return;
   if(el.id === 'modalName'){ ui.modal.name = el.value; update(); return; }
   if(el.id === 'modalAddedBy'){ ui.modal.addedBy = el.value; update(); return; }
@@ -950,7 +1204,7 @@ document.addEventListener('input', function(e){
   var field = el.dataset.field;
   if(field && el.dataset.idx !== undefined){
     var idx = +el.dataset.idx;
-    if(field === 'ing-name'){ ui.modal.ingredients[idx].name = el.value; update(); }
+    if(field === 'ing-name'){ ui.modal.ingredients[idx].name = el.value; ui.modal.activeSuggestIdx = el.value.trim() ? idx : null; update(); }
     else if(field === 'ing-amount'){ ui.modal.ingredients[idx].amount = el.value; update(); }
     else if(field === 'ing-pkg'){ ui.modal.ingredients[idx].pkg = el.value; update(); }
   }
@@ -962,6 +1216,10 @@ document.addEventListener('change', function(e){
     var day = el.value, rid = el.dataset.recipe;
     if(day){ addRecipeToDay(day, rid); update(); }
     return;
+  }
+  if(ui.ingEdit){
+    if(el.id === 'ingEditUnit'){ ui.ingEdit.unit = el.value; update(); return; }
+    if(el.id === 'ingEditCategory'){ ui.ingEdit.category = el.value; update(); return; }
   }
   if(!ui.modal) return;
   var field = el.dataset.field;
