@@ -59,6 +59,9 @@
   .wp-day-result:hover { background: var(--paper-soft); }
   .wp-day-result-sub { color: var(--ink-soft); font-size: 12px; }
   .wp-day-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .wp-day-added { margin-bottom: 10px; }
+  .wp-day-added-item { display: flex; align-items: center; justify-content: space-between; background: var(--paper-soft); border-radius: 7px; padding: 8px 10px; margin-bottom: 6px; font-size: 14px; }
+  .wp-day-added-item span { font-weight: 600; }
 
   .wp-btn-ghost, .wp-btn-primary { border-radius: 7px; padding: 8px 14px; font-size: 13.5px; cursor: pointer; border: none; font-family: inherit; }
   .wp-btn-ghost { background: transparent; border: 1px solid var(--line-paper); color: var(--ink); }
@@ -74,6 +77,8 @@
   .wp-sugg-item:first-child { border-top: none; }
   .wp-sugg-name { font-size: 14px; }
   .wp-sugg-sub { font-size: 11.5px; color: rgba(243,236,217,0.5); }
+  .wp-sugg-leftover { font-size: 10.5px; color: var(--bg); background: var(--sage); border-radius: 4px; padding: 1px 6px; margin-left: 6px; font-style: normal; }
+  .wp-sugg-leftover-text { font-size: 11.5px; color: var(--yolk); margin-top: 2px; }
   .wp-sugg-select { background: var(--bg); color: var(--paper); border: 1px solid var(--line); border-radius: 6px; font-size: 12.5px; padding: 4px 6px; font-family: inherit; }
 
   .wp-box-search { display: flex; align-items: center; gap: 8px; background: var(--bg-soft); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
@@ -95,30 +100,39 @@
   .wp-checkbox.on { background: var(--sage); border-color: var(--sage); }
   .wp-item-name { flex: 1; font-size: 14.5px; }
   .wp-item.done .wp-item-name { text-decoration: line-through; opacity: 0.45; }
-  .wp-item-amount { font-size: 13.5px; color: rgba(243,236,217,0.7); font-variant-numeric: tabular-nums; }
+  .wp-item-amount { font-size: 13.5px; color: rgba(243,236,217,0.7); font-variant-numeric: tabular-nums; text-align: right; }
+  .wp-item-need { color: rgba(243,236,217,0.45); font-size: 11.5px; }
+  .wp-item-leftover { font-size: 11.5px; color: var(--yolk); margin-top: 1px; }
   .wp-missing { background: rgba(177,75,50,0.18); border: 1px solid rgba(177,75,50,0.4); border-radius: 8px; padding: 12px 14px; margin-top: 6px; font-size: 13px; color: var(--paper); }
   .wp-missing strong { color: var(--yolk); }
 
   .wp-empty { text-align: center; color: rgba(243,236,217,0.45); font-size: 14px; padding: 30px 20px; }
   .wp-icon-btn { background: none; border: none; color: inherit; cursor: pointer; padding: 4px; display: flex; }
 
-  .wp-modal-backdrop { position: fixed; inset: 0; background: rgba(15,20,17,0.72); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
-  .wp-modal { background: var(--paper); color: var(--ink); width: 100%; max-width: 520px; max-height: 88vh; border-radius: 16px 16px 0 0; display: flex; flex-direction: column; }
+  .wp-modal-backdrop { position: fixed; inset: 0; background: rgba(15,20,17,0.72); z-index: 50; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 24px 0 60px; }
+  .wp-modal { background: var(--paper); color: var(--ink); width: calc(100% - 24px); max-width: 520px; margin: 0 auto; border-radius: 16px; display: flex; flex-direction: column; }
   .wp-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line-paper); }
   .wp-modal-head h3 { margin: 0; font-size: 17px; }
-  .wp-modal-body { padding: 16px 18px; overflow-y: auto; }
+  .wp-modal-body { padding: 16px 18px; }
   .wp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; font-size: 12.5px; color: var(--ink-soft); flex: 1; }
   .wp-field span em { font-style: italic; opacity: 0.75; }
-  .wp-field input, .wp-field select { border: 1px solid var(--line-paper); border-radius: 7px; padding: 9px 10px; font-size: 14px; color: var(--ink); background: white; font-family: inherit; width: 100%; }
+  .wp-field input, .wp-field select { border: 1px solid var(--line-paper); border-radius: 7px; padding: 10px; font-size: 16px; color: var(--ink); background: white; font-family: inherit; width: 100%; }
   .wp-field-row { display: flex; gap: 10px; }
   .wp-field-narrow { max-width: 130px; }
   .wp-ing-head { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); margin: 6px 0 8px; }
   .wp-muted-note { font-size: 12.5px; color: var(--ink-soft); font-style: italic; margin: 0 0 10px; }
   .wp-ing-row { display: flex; gap: 6px; margin-bottom: 7px; align-items: center; }
-  .wp-ing-name { flex: 1.6; min-width: 0; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 8px; font-size: 13px; font-family: inherit; }
-  .wp-ing-amount { width: 58px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 6px; font-size: 13px; font-family: inherit; }
-  .wp-ing-unit { width: 78px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 4px; font-size: 12px; font-family: inherit; background: white; }
-  .wp-ing-cat { flex: 1.3; min-width: 0; border: 1px solid var(--line-paper); border-radius: 6px; padding: 7px 4px; font-size: 12px; font-family: inherit; background: white; }
+  .wp-ing-card { border: 1px solid var(--line-paper); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+  .wp-ing-row-top { display: flex; gap: 6px; align-items: center; }
+  .wp-ing-row-bottom { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .wp-ing-name { flex: 1; min-width: 0; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 8px; font-size: 16px; font-family: inherit; }
+  .wp-ing-amount { width: 68px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 6px; font-size: 16px; font-family: inherit; }
+  .wp-ing-unit { width: 84px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 4px; font-size: 15px; font-family: inherit; background: white; }
+  .wp-ing-pkg-wrap { display: flex; align-items: center; gap: 4px; }
+  .wp-ing-pkg-wrap span { font-size: 12.5px; color: var(--ink-soft); }
+  .wp-ing-pkg { width: 64px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 6px; font-size: 16px; font-family: inherit; }
+  .wp-ing-cat { flex: 1; min-width: 120px; border: 1px solid var(--line-paper); border-radius: 6px; padding: 9px 4px; font-size: 15px; font-family: inherit; background: white; }
+  .wp-ing-hint { font-size: 12px; color: var(--ink-soft); font-style: italic; margin: -2px 0 8px; }
   .wp-modal-foot { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--line-paper); }
   .wp-modal-foot-actions { display: flex; gap: 8px; }
 
@@ -422,8 +436,18 @@ function buildInitialRecipes(){
 
 function emptyDays(){
   var d = {};
-  DAYS.forEach(function(day){ d[day] = { recipeId: null }; });
+  DAYS.forEach(function(day){ d[day] = { recipeIds: [] }; });
   return d;
+}
+function migrateDays(days){
+  var out = {};
+  DAYS.forEach(function(day){
+    var info = days && days[day];
+    if(info && Array.isArray(info.recipeIds)){ out[day] = { recipeIds: info.recipeIds.slice() }; }
+    else if(info && info.recipeId){ out[day] = { recipeIds: [info.recipeId] }; }
+    else { out[day] = { recipeIds: [] }; }
+  });
+  return out;
 }
 function emptyPlan(){ return { persons: 4, days: emptyDays() }; }
 
@@ -434,21 +458,30 @@ function signals(r){
   return s;
 }
 
-function getSuggestions(recipes, days){
-  var plannedIds = Object.keys(days).map(function(d){ return days[d].recipeId; }).filter(Boolean);
-  if(!plannedIds.length) return [];
+function getSuggestions(recipes, days, leftovers){
+  var plannedIds = [];
+  Object.keys(days).forEach(function(d){ (days[d].recipeIds || []).forEach(function(id){ plannedIds.push(id); }); });
+  leftovers = leftovers || [];
+  if(!plannedIds.length && !leftovers.length) return [];
   var planned = new Set();
   plannedIds.forEach(function(id){
     var r = recipes.find(function(x){ return x.id === id; });
     if(r) signals(r).forEach(function(s){ planned.add(s); });
   });
-  if(!planned.size) return [];
   return recipes
     .filter(function(r){ return plannedIds.indexOf(r.id) === -1; })
     .map(function(r){
       var score = 0;
       signals(r).forEach(function(s){ if(planned.has(s)) score++; });
-      return { recipe: r, score: score };
+      var matched = leftovers.filter(function(lo){
+        var ln = lo.name.toLowerCase();
+        return r.ingredients.some(function(ing){
+          var n = ing.name.toLowerCase();
+          return n.indexOf(ln) > -1 || ln.indexOf(n) > -1;
+        });
+      });
+      score += matched.length * 5;
+      return { recipe: r, score: score, leftoverMatches: matched };
     })
     .filter(function(x){ return x.score > 0; })
     .sort(function(a,b){ return b.score - a.score; })
@@ -459,28 +492,39 @@ function buildShoppingList(recipes, plan){
   var map = {};
   var missing = [];
   Object.keys(plan.days).forEach(function(day){
-    var info = plan.days[day];
-    if(!info.recipeId) return;
-    var r = recipes.find(function(x){ return x.id === info.recipeId; });
-    if(!r) return;
-    if(!r.ingredients.length){ missing.push(r.name); return; }
-    var factor = plan.persons / (r.servings || 4);
-    r.ingredients.forEach(function(ing){
-      var key = ing.name.toLowerCase() + '|' + ing.unit;
-      if(!map[key]) map[key] = { name: ing.name, unit: ing.unit, amount: 0, category: ing.category || 'Sonstiges' };
-      map[key].amount += (Number(ing.amount) || 0) * factor;
+    var ids = plan.days[day].recipeIds || [];
+    ids.forEach(function(rid){
+      var r = recipes.find(function(x){ return x.id === rid; });
+      if(!r) return;
+      if(!r.ingredients.length){ missing.push(r.name); return; }
+      var factor = plan.persons / (r.servings || 4);
+      r.ingredients.forEach(function(ing){
+        var key = ing.name.toLowerCase() + '|' + ing.unit;
+        if(!map[key]) map[key] = { name: ing.name, unit: ing.unit, amount: 0, category: ing.category || 'Sonstiges', pkg: null };
+        map[key].amount += (Number(ing.amount) || 0) * factor;
+        if(!map[key].pkg && ing.pkg) map[key].pkg = Number(ing.pkg);
+      });
     });
   });
   var items = Object.keys(map).map(function(k){
     var i = map[k];
-    return { name: i.name, unit: i.unit, category: i.category, amount: Math.round(i.amount * 10) / 10 };
+    var out = { name: i.name, unit: i.unit, category: i.category, amount: Math.round(i.amount * 10) / 10 };
+    if(i.pkg && i.pkg > 0){
+      var packages = Math.ceil(i.amount / i.pkg);
+      var bought = packages * i.pkg;
+      out.pkg = i.pkg;
+      out.packages = packages;
+      out.leftover = Math.round((bought - i.amount) * 10) / 10;
+    }
+    return out;
   }).sort(function(a,b){ return a.name.localeCompare(b.name, 'de'); });
   var byCategory = {};
   items.forEach(function(i){
     if(!byCategory[i.category]) byCategory[i.category] = [];
     byCategory[i.category].push(i);
   });
-  return { byCategory: byCategory, missing: Array.from(new Set(missing)) };
+  var leftovers = items.filter(function(i){ return i.leftover > 0; }).map(function(i){ return { name: i.name, unit: i.unit, leftover: i.leftover }; });
+  return { byCategory: byCategory, missing: Array.from(new Set(missing)), leftovers: leftovers };
 }
 
 // ---- State ----
@@ -513,7 +557,9 @@ function initCloud(){
           var d = snap.data();
           recipes = (d.recipes && d.recipes.length) ? d.recipes : buildInitialRecipes();
           plan = d.plan || emptyPlan();
+          plan.days = migrateDays(plan.days);
           nextPlan = d.nextPlan || { days: emptyDays() };
+          nextPlan.days = migrateDays(nextPlan.days);
         } else {
           recipes = buildInitialRecipes();
           plan = emptyPlan();
@@ -543,10 +589,19 @@ function saveState(){
   });
 }
 
-function assignRecipe(day, recipeId){
-  if(ui.weekView === 'next'){ nextPlan.days[day] = { recipeId: recipeId || null }; }
-  else { plan.days[day] = { recipeId: recipeId || null }; }
-  ui.openDay = null; ui.daySearch = '';
+function addRecipeToDay(day, recipeId){
+  var days = ui.weekView === 'next' ? nextPlan.days : plan.days;
+  if(days[day].recipeIds.indexOf(recipeId) === -1){ days[day].recipeIds.push(recipeId); }
+  ui.daySearch = '';
+}
+function removeRecipeFromDay(day, recipeId){
+  var days = ui.weekView === 'next' ? nextPlan.days : plan.days;
+  days[day].recipeIds = days[day].recipeIds.filter(function(id){ return id !== recipeId; });
+}
+function clearDay(day){
+  var days = ui.weekView === 'next' ? nextPlan.days : plan.days;
+  days[day].recipeIds = [];
+  ui.openDay = null;
 }
 function switchWeek(){
   plan.days = nextPlan.days;
@@ -568,7 +623,8 @@ function saveModal(){
   if(!m.name.trim()) return;
   var tags = m.tagsText.split(',').map(function(t){ return t.trim().toLowerCase(); }).filter(Boolean);
   var ingredients = m.ingredients.filter(function(i){ return i.name.trim(); }).map(function(i){
-    return { id: i.id || uid('ing'), name: i.name.trim(), amount: Number(i.amount) || 0, unit: i.unit, category: i.category };
+    var pkg = Number(i.pkg) || 0;
+    return { id: i.id || uid('ing'), name: i.name.trim(), amount: Number(i.amount) || 0, unit: i.unit, category: i.category, pkg: pkg > 0 ? pkg : null };
   });
   var newId = m.editingId;
   if(m.editingId){
@@ -586,14 +642,17 @@ function saveModal(){
       tags: tags, url: m.url.trim() || null, ingredients: ingredients
     });
   }
-  if(m.forDay) assignRecipe(m.forDay, newId);
+  if(m.forDay) addRecipeToDay(m.forDay, newId);
   ui.modal = null;
 }
 function deleteRecipeFromModal(){
   var id = ui.modal.editingId;
   recipes = recipes.filter(function(r){ return r.id !== id; });
-  Object.keys(plan.days).forEach(function(d){ if(plan.days[d].recipeId === id) plan.days[d] = { recipeId: null }; });
-  Object.keys(nextPlan.days).forEach(function(d){ if(nextPlan.days[d].recipeId === id) nextPlan.days[d] = { recipeId: null }; });
+  [plan.days, nextPlan.days].forEach(function(daysObj){
+    Object.keys(daysObj).forEach(function(d){
+      daysObj[d].recipeIds = (daysObj[d].recipeIds || []).filter(function(x){ return x !== id; });
+    });
+  });
   ui.modal = null;
 }
 
@@ -623,22 +682,32 @@ function renderTabs(){
 }
 function renderDayPanel(day, days){
   var q = ui.daySearch.trim().toLowerCase();
-  var results = (q ? recipes.filter(function(r){ return r.name.toLowerCase().indexOf(q) > -1; }) : recipes).slice(0, 8);
-  var hasRecipe = !!days[day].recipeId;
-  var html = '<div class="wp-day-panel">' +
-    '<div class="wp-search-box">' + ICONS.search + '<input id="daySearchInput" placeholder="Rezept suchen …" value="' + esc(ui.daySearch) + '"></div>' +
+  var addedIds = days[day].recipeIds || [];
+  var addedRecs = addedIds.map(function(id){ return recipes.find(function(r){ return r.id === id; }); }).filter(Boolean);
+  var results = (q ? recipes.filter(function(r){ return r.name.toLowerCase().indexOf(q) > -1; }) : recipes)
+    .filter(function(r){ return addedIds.indexOf(r.id) === -1; })
+    .slice(0, 8);
+  var html = '<div class="wp-day-panel">';
+  if(addedRecs.length){
+    html += '<div class="wp-day-added">';
+    addedRecs.forEach(function(r){
+      html += '<div class="wp-day-added-item"><span>' + esc(r.name) + '</span><button class="wp-icon-btn" data-action="remove-recipe-day" data-day="' + esc(day) + '" data-recipe="' + r.id + '">' + ICONS.x + '</button></div>';
+    });
+    html += '</div>';
+  }
+  html += '<div class="wp-search-box">' + ICONS.search + '<input id="daySearchInput" placeholder="Weiteres Rezept suchen …" value="' + esc(ui.daySearch) + '"></div>' +
     '<div class="wp-day-results">';
   if(results.length){
     results.forEach(function(r){
-      html += '<button class="wp-day-result" data-action="assign-day" data-day="' + esc(day) + '" data-recipe="' + r.id + '">' + esc(r.name) + ' <span class="wp-day-result-sub">— ' + esc(r.addedBy) + '</span></button>';
+      html += '<button class="wp-day-result" data-action="add-recipe-day" data-day="' + esc(day) + '" data-recipe="' + r.id + '">' + esc(r.name) + ' <span class="wp-day-result-sub">— ' + esc(r.addedBy) + '</span></button>';
     });
   } else {
     html += '<p class="wp-muted-note">Kein Rezept gefunden.</p>';
   }
   html += '</div><div class="wp-day-actions">' +
     '<button class="wp-text-btn" data-action="add-new-for-day" data-day="' + esc(day) + '">' + ICONS.plus + ' ' + (ui.daySearch.trim() ? ('„' + esc(ui.daySearch.trim()) + '“ neu anlegen') : 'Neues Gericht anlegen') + '</button>';
-  if(hasRecipe){
-    html += '<button class="wp-clear-btn" data-action="assign-day" data-day="' + esc(day) + '" data-recipe="">Tag freilassen</button>';
+  if(addedRecs.length){
+    html += '<button class="wp-clear-btn" data-action="clear-day" data-day="' + esc(day) + '">Alle entfernen</button>';
   }
   html += '</div></div>';
   return html;
@@ -647,14 +716,16 @@ function renderDayList(days){
   var html = '';
   DAYS.forEach(function(day){
     var info = days[day];
-    var recipe = info.recipeId ? recipes.find(function(r){ return r.id === info.recipeId; }) : null;
+    var ids = info.recipeIds || [];
+    var recs = ids.map(function(id){ return recipes.find(function(r){ return r.id === id; }); }).filter(Boolean);
     var isOpen = ui.openDay === day;
     html += '<div class="wp-day"><div class="wp-day-row" data-action="toggle-day" data-day="' + esc(day) + '">' +
       '<span class="wp-day-name wp-serif">' + day + '</span>' +
       '<div class="wp-day-main">';
-    if(recipe){
-      html += '<div class="wp-day-recipe">' + esc(recipe.name) + '</div>' +
-        '<div class="wp-day-meta">von ' + esc(recipe.addedBy) + (recipe.ingredients.length === 0 ? ' · Zutaten fehlen noch' : '') + '</div>';
+    if(recs.length){
+      var missingCount = recs.filter(function(r){ return r.ingredients.length === 0; }).length;
+      html += '<div class="wp-day-recipe">' + recs.map(function(r){ return esc(r.name); }).join(' + ') + '</div>' +
+        '<div class="wp-day-meta">' + recs.length + ' Gericht' + (recs.length > 1 ? 'e' : '') + (missingCount ? ' · Zutaten fehlen bei ' + missingCount : '') + '</div>';
     } else {
       html += '<div class="wp-day-empty">Gericht wählen …</div>';
     }
@@ -666,7 +737,7 @@ function renderDayList(days){
 }
 function renderPlanTab(){
   var activeDays = ui.weekView === 'next' ? nextPlan.days : plan.days;
-  var nextPlannedCount = Object.keys(nextPlan.days).filter(function(d){ return nextPlan.days[d].recipeId; }).length;
+  var nextPlannedCount = Object.keys(nextPlan.days).filter(function(d){ return (nextPlan.days[d].recipeIds || []).length > 0; }).length;
   var html = '<div class="wp-section">' +
     '<div class="wp-weekswitch"><div class="wp-weekpill">' +
       '<button class="' + (ui.weekView==='current'?'active':'') + '" data-action="weekview" data-view="current">Diese Woche</button>' +
@@ -679,12 +750,16 @@ function renderPlanTab(){
     '</div>';
   }
   html += renderDayList(activeDays);
-  var suggestions = getSuggestions(recipes, activeDays);
+  var currentShopping = buildShoppingList(recipes, plan);
+  var suggestions = getSuggestions(recipes, activeDays, currentShopping.leftovers);
   if(suggestions.length){
-    html += '<div class="wp-sugg"><div class="wp-sugg-head">' + ICONS.sparkles + ' Passt gut dazu — nutzt ähnliche Zutaten</div>';
+    html += '<div class="wp-sugg"><div class="wp-sugg-head">' + ICONS.sparkles + ' Passt gut dazu — nutzt ähnliche Zutaten oder Restmengen</div>';
     suggestions.forEach(function(s){
       var r = s.recipe;
-      html += '<div class="wp-sugg-item"><div><div class="wp-sugg-name">' + esc(r.name) + '</div><div class="wp-sugg-sub">von ' + esc(r.addedBy) + '</div></div>' +
+      var leftoverText = s.leftoverMatches.length ? s.leftoverMatches.map(function(lo){ return lo.leftover + ' ' + esc(lo.unit) + ' ' + esc(lo.name); }).join(', ') : '';
+      html += '<div class="wp-sugg-item"><div><div class="wp-sugg-name">' + esc(r.name) + '</div>' +
+        (leftoverText ? '<div class="wp-sugg-leftover-text">Verwertet Rest: ' + leftoverText + '</div>' : '<div class="wp-sugg-sub">von ' + esc(r.addedBy) + '</div>') +
+        '</div>' +
         '<select class="wp-sugg-select" data-action="sugg-assign" data-recipe="' + r.id + '"><option value="" selected disabled>für Tag …</option>' +
         DAYS.map(function(d){ return '<option value="' + d + '">' + d + '</option>'; }).join('') + '</select></div>';
     });
@@ -713,7 +788,7 @@ function renderBoxTab(){
 }
 function renderListTab(){
   var shopping = buildShoppingList(recipes, plan);
-  var plannedCount = Object.keys(plan.days).filter(function(d){ return plan.days[d].recipeId; }).length;
+  var plannedCount = Object.keys(plan.days).filter(function(d){ return (plan.days[d].recipeIds || []).length > 0; }).length;
   var html = '<div class="wp-section"><div class="wp-list-summary">' + ICONS.cart + ' ' + plannedCount + ' von 7 Tagen geplant · für ' + plan.persons + ' Personen</div>';
   var cats = Object.keys(shopping.byCategory);
   if(!cats.length){ html += '<p class="wp-empty">Noch keine Zutaten in der Liste — plant Gerichte für „Diese Woche“ ein.</p>'; }
@@ -722,10 +797,16 @@ function renderListTab(){
     shopping.byCategory[cat].forEach(function(item){
       var key = item.name + item.unit;
       var isDone = !!ui.checked[key];
+      var amountLabel = item.amount + ' ' + esc(item.unit);
+      var subLabel = '';
+      if(item.packages){
+        amountLabel = item.packages + ' × ' + item.pkg + ' ' + esc(item.unit) + ' <span class="wp-item-need">(' + item.amount + ' ' + esc(item.unit) + ' nötig)</span>';
+        if(item.leftover > 0) subLabel = '<div class="wp-item-leftover">+' + item.leftover + ' ' + esc(item.unit) + ' Rest übrig</div>';
+      }
       html += '<div class="wp-item ' + (isDone?'done':'') + '" data-action="toggle-checked" data-key="' + esc(key) + '">' +
         '<span class="wp-checkbox ' + (isDone?'on':'') + '">' + (isDone?ICONS.check:'') + '</span>' +
-        '<span class="wp-item-name">' + esc(item.name) + '</span>' +
-        '<span class="wp-item-amount">' + item.amount + ' ' + esc(item.unit) + '</span></div>';
+        '<span class="wp-item-name">' + esc(item.name) + subLabel + '</span>' +
+        '<span class="wp-item-amount">' + amountLabel + '</span></div>';
     });
     html += '</div>';
   });
@@ -742,16 +823,21 @@ function renderModal(){
     ingHtml = '<p class="wp-muted-note">Noch keine Zutaten hinterlegt — dann fehlt dieses Rezept später in der Einkaufsliste.</p>';
   }
   m.ingredients.forEach(function(ing, idx){
-    ingHtml += '<div class="wp-ing-row">' +
-      '<input id="ing-name-' + idx + '" class="wp-ing-name" placeholder="Zutat" data-field="ing-name" data-idx="' + idx + '" value="' + esc(ing.name) + '">' +
-      '<input id="ing-amount-' + idx + '" class="wp-ing-amount" type="number" step="0.1" placeholder="Menge" data-field="ing-amount" data-idx="' + idx + '" value="' + esc(String(ing.amount)) + '">' +
-      '<select id="ing-unit-' + idx + '" class="wp-ing-unit" data-field="ing-unit" data-idx="' + idx + '">' +
-        UNITS.map(function(u){ return '<option value="' + u + '" ' + (u===ing.unit?'selected':'') + '>' + u + '</option>'; }).join('') +
-      '</select>' +
-      '<select id="ing-cat-' + idx + '" class="wp-ing-cat" data-field="ing-cat" data-idx="' + idx + '">' +
-        CATEGORIES.map(function(c){ return '<option value="' + c + '" ' + (c===ing.category?'selected':'') + '>' + c + '</option>'; }).join('') +
-      '</select>' +
-      '<button class="wp-icon-btn" data-action="remove-ingredient" data-idx="' + idx + '">' + ICONS.trash + '</button>' +
+    ingHtml += '<div class="wp-ing-card">' +
+      '<div class="wp-ing-row-top">' +
+        '<input id="ing-name-' + idx + '" class="wp-ing-name" placeholder="Zutat" data-field="ing-name" data-idx="' + idx + '" value="' + esc(ing.name) + '">' +
+        '<button class="wp-icon-btn" data-action="remove-ingredient" data-idx="' + idx + '">' + ICONS.trash + '</button>' +
+      '</div>' +
+      '<div class="wp-ing-row-bottom">' +
+        '<input id="ing-amount-' + idx + '" class="wp-ing-amount" type="number" step="0.1" inputmode="decimal" placeholder="Menge" data-field="ing-amount" data-idx="' + idx + '" value="' + esc(String(ing.amount)) + '">' +
+        '<select id="ing-unit-' + idx + '" class="wp-ing-unit" data-field="ing-unit" data-idx="' + idx + '">' +
+          UNITS.map(function(u){ return '<option value="' + u + '" ' + (u===ing.unit?'selected':'') + '>' + u + '</option>'; }).join('') +
+        '</select>' +
+        '<div class="wp-ing-pkg-wrap"><span>à</span><input id="ing-pkg-' + idx + '" class="wp-ing-pkg" type="number" step="0.1" inputmode="decimal" placeholder="Pkg." title="Packungsgröße (optional) — z. B. 400 wenn im 400g-Beutel verkauft" data-field="ing-pkg" data-idx="' + idx + '" value="' + (ing.pkg ? esc(String(ing.pkg)) : '') + '"></div>' +
+        '<select id="ing-cat-' + idx + '" class="wp-ing-cat" data-field="ing-cat" data-idx="' + idx + '">' +
+          CATEGORIES.map(function(c){ return '<option value="' + c + '" ' + (c===ing.category?'selected':'') + '>' + c + '</option>'; }).join('') +
+        '</select>' +
+      '</div>' +
     '</div>';
   });
   return '<div class="wp-modal-backdrop" data-action="modal-close">' +
@@ -766,6 +852,7 @@ function renderModal(){
         '<label class="wp-field"><span>Stichworte <em>(kommagetrennt, hilft bei Vorschlägen)</em></span><input id="modalTags" value="' + esc(m.tagsText) + '" placeholder="z. B. kartoffel, hackfleisch"></label>' +
         '<label class="wp-field"><span>Link zum Rezept <em>(optional)</em></span><input id="modalUrl" value="' + esc(m.url) + '" placeholder="https://..."></label>' +
         '<div class="wp-ing-head"><span>Zutaten <em>für ' + esc(String(m.servings || 4)) + ' Personen</em></span><button class="wp-text-btn" data-action="add-ingredient">' + ICONS.plus + ' Zutat</button></div>' +
+        '<p class="wp-ing-hint">„à" ist optional: Packungsgröße im Laden (z. B. 400 bei einem 400g-Beutel) — damit rundet die Einkaufsliste auf ganze Packungen und zeigt Restmengen.</p>' +
         ingHtml +
       '</div>' +
       '<div class="wp-modal-foot">' +
@@ -832,7 +919,9 @@ document.addEventListener('click', function(e){
     case 'persons-minus': plan.persons = Math.max(1, plan.persons - 1); break;
     case 'persons-plus': plan.persons += 1; break;
     case 'toggle-day': { var day = el.dataset.day; ui.openDay = ui.openDay === day ? null : day; ui.daySearch = ''; break; }
-    case 'assign-day': { assignRecipe(el.dataset.day, el.dataset.recipe || null); break; }
+    case 'add-recipe-day': { addRecipeToDay(el.dataset.day, el.dataset.recipe); break; }
+    case 'remove-recipe-day': { removeRecipeFromDay(el.dataset.day, el.dataset.recipe); break; }
+    case 'clear-day': { clearDay(el.dataset.day); break; }
     case 'add-new-for-day': { openAddModal(el.dataset.day, ui.daySearch); break; }
     case 'open-add-recipe': openAddModal(); break;
     case 'open-edit-recipe': { var r = recipes.find(function(x){ return x.id === el.dataset.recipe; }); if(r) openEditModal(r); break; }
@@ -862,6 +951,7 @@ document.addEventListener('input', function(e){
     var idx = +el.dataset.idx;
     if(field === 'ing-name'){ ui.modal.ingredients[idx].name = el.value; update(); }
     else if(field === 'ing-amount'){ ui.modal.ingredients[idx].amount = el.value; update(); }
+    else if(field === 'ing-pkg'){ ui.modal.ingredients[idx].pkg = el.value; update(); }
   }
 });
 
@@ -869,7 +959,7 @@ document.addEventListener('change', function(e){
   var el = e.target;
   if(el.matches('[data-action="sugg-assign"]')){
     var day = el.value, rid = el.dataset.recipe;
-    if(day){ assignRecipe(day, rid); update(); }
+    if(day){ addRecipeToDay(day, rid); update(); }
     return;
   }
   if(!ui.modal) return;
