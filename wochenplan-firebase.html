@@ -840,8 +840,8 @@ function renderModal(){
       '</div>' +
     '</div>';
   });
-  return '<div class="wp-modal-backdrop" data-action="modal-close">' +
-    '<div class="wp-modal" onclick="event.stopPropagation()">' +
+  return '<div class="wp-modal-backdrop" id="modalBackdrop">' +
+    '<div class="wp-modal">' +
       '<div class="wp-modal-head"><h3>' + (m.editingId ? 'Rezept bearbeiten' : 'Neues Rezept') + '</h3><button class="wp-icon-btn" data-action="modal-close">' + ICONS.x + '</button></div>' +
       '<div class="wp-modal-body">' +
         '<label class="wp-field"><span>Name</span><input id="modalName" value="' + esc(m.name) + '" placeholder="z. B. Ofengemüse"></label>' +
@@ -909,6 +909,7 @@ function update(){
 
 // ---- Events ----
 document.addEventListener('click', function(e){
+  if(e.target.id === 'modalBackdrop'){ ui.modal = null; update(); return; }
   var el = e.target.closest('[data-action]');
   if(!el) return;
   var action = el.dataset.action;
